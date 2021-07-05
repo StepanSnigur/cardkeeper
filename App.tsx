@@ -1,21 +1,32 @@
-import { StatusBar } from 'expo-status-bar'
 import React from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { StatusBar } from 'expo-status-bar'
+import { Provider as PaperProvider, DarkTheme, Button } from 'react-native-paper'
+import { NavigationContainer } from '@react-navigation/native'
 
-export default function App() {
+import MenuNavigation from './src/navigation/MenuNavigation'
+
+const theme = {
+  ...DarkTheme,
+  dark: true,
+  colors: {
+    ...DarkTheme.colors,
+    primary: '#30374a',
+    surface: '#181c25',
+    background: '#161b22', //'#0D1117',
+    text: '#c9d1d9',
+    placeholder: '#fff'
+  }
+}
+
+const App = () => {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <PaperProvider theme={theme}>
+        <StatusBar />
+        <MenuNavigation />
+      </PaperProvider>
+    </NavigationContainer>
   )
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-})
+export default App
