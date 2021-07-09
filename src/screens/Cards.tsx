@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react'
-import { StyleSheet, View, GestureResponderEvent } from 'react-native'
+import {
+  StyleSheet,
+  View,
+  GestureResponderEvent,
+} from 'react-native'
 import { useTheme } from 'react-native-paper'
 
 import Card from '../components/Card'
 
 interface ICardData {
-  pos?: number,
+  pos: number,
   img: string,
   isMoving?: boolean
 }
@@ -15,86 +19,93 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     paddingTop: 20,
-    position: 'relative',
   },
 })
 
 const initialCards: ICardData[] = [
-  {img: ''},
-  {img: ''},
-  {img: ''},
-  {img: ''},
-  {img: ''},
-  {img: ''},
-  {img: ''},
-  {img: ''},
-  {img: ''},
-  {img: ''},
-  {img: ''},
-  {img: ''},
+  {img: '', pos: 0},
+  {img: '', pos: 0},
+  {img: '', pos: 0},
+  {img: '', pos: 0},
+  {img: '', pos: 0},
+  {img: '', pos: 0},
+  {img: '', pos: 0},
+  {img: '', pos: 0},
+  {img: '', pos: 0},
+  {img: '', pos: 0},
+  {img: '', pos: 0},
+  {img: '', pos: 0, isMoving: true},
 ]
-const CARDS_TO_SHOW = 6
+
 const CARD_HEIGHT = 175
+const SPACE_BETWEEN_CARDS = 25
+const FULL_CARD_HEIGHT = CARD_HEIGHT + SPACE_BETWEEN_CARDS
 
 const Cards = () => {
   const [initialCoors, setInitialCoords] = useState(0)
-  const [memoizedDelta, setMemoizedDelta] = useState<number | null>(null)
+  const [scrolled, setScrolled] = useState(0)
   const [cards, setCards] = useState<ICardData[]>(initialCards)
   const { colors } = useTheme()
 
+  // places cards by default
   useEffect(() => {
-    setCards((cards) => {
-      let prevCardIndent = 0
+    setCards(cards => {
       return cards.map((card, i) => {
-        const cardPosition = calculateCardPosition(i, cards.length, prevCardIndent)
-        prevCardIndent = cardPosition
+        const cardInitialPosition = i * i * 2
+        if (i === cards.length - 1) setScrolled(cardInitialPosition * -1)
         return {
           ...card,
-          pos: cardPosition,
-          isMoving: i >= cards.length - 2
+          pos: cardInitialPosition
         }
       })
     })
-  }, [initialCards])
+  }, [])
 
-  const calculateCardPosition = (cardIdx: number, cardsCount: number, prevCardIndent: number = 0) => {
-    if (cardsCount - cardIdx > CARDS_TO_SHOW) {
-      return 0
-    } else {
-      return prevCardIndent ? prevCardIndent * 2 : 10
-    }
-  }
-  const checkOverlapping = (card1: ICardData, card2: ICardData) => {
-    if (!card1 || !card2) return false
-    return card2.pos! - card1.pos! > 60
-  }
-  const moveCards = (deltaY: number) => {
-    setCards((cards) => {
-      return cards.map((card, i) => {
-        if (!card.isMoving) return card
-        // TODO deltaY может принимать слишком большие значения изза чего возникает разрыв между карточек
-        // TODO попробовать переделать на скролл
-        // console.log(deltaY)
-        if (Math.abs(deltaY) > 210) deltaY = 210 * (deltaY / Math.abs(deltaY))
-        const newPos = card.pos! - deltaY / 10
-        const isOverlapping = checkOverlapping(cards[i - 1], card)
-        if (isOverlapping) cards[i - 1].isMoving = true
+  // moving cards on scroll
+  useEffect(() => {
+    setCards(cards => {
+      const newCards = [...cards].reverse()
+      return newCards.map((card, i) => {
+        if (checkCanMove(newCards, i)) card = { ...card, isMoving: true }
         return {
           ...card,
-          pos: newPos > 0 ? newPos : 0,
-          isMoving: isOverlapping
+          pos: card.isMoving ? calculateCardPosition(i) : card.pos
         }
-      })
+      }).reverse()
     })
+  }, [scrolled])
+
+  const checkCanMove = (cards: ICardData[], cardIdx: number) => {
+    return cards[cardIdx - 1]
+      && cards[cardIdx - 1].isMoving
+      && cards[cardIdx - 1].pos - cards[cardIdx].pos > FULL_CARD_HEIGHT
+  }
+  const calculateCardPosition = (cardIdx: number) => {
+    const newPosition = (scrolled + cardIdx * FULL_CARD_HEIGHT) * -1
+    const initialPosition = Math.pow(cards.length - 1 - cardIdx, 2) * 2
+    const maxTopIndent = FULL_CARD_HEIGHT * (cards.length - 1 - cardIdx)
+
+    if (newPosition < initialPosition) return initialPosition
+    if (newPosition > maxTopIndent) return maxTopIndent
+    return newPosition
   }
   const handleTap = (e: GestureResponderEvent) => {
     setInitialCoords(e.nativeEvent.pageY)
-    return true
   }
   const handleScroll = (e: GestureResponderEvent) => {
-    moveCards(initialCoors - e.nativeEvent.pageY)
+    const deltaY = initialCoors - e.nativeEvent.pageY
+
+    if (checkStopScroll(deltaY)) return false
+
+    setScrolled(scrolled + deltaY)
+    setInitialCoords(e.nativeEvent.pageY)
   }
-  const handleTouchEnd = (e: GestureResponderEvent) => {
+  const checkStopScroll = (deltaY: number) => {
+    return cards.length <= 1
+      || (scrolled > 0  && deltaY > 0)
+      || (cards[1].pos >= FULL_CARD_HEIGHT && deltaY < 0)
+  }
+  const handleTouchEnd = () => {
     setInitialCoords(0)
   }
 
@@ -109,7 +120,7 @@ const Cards = () => {
       {cards.map((card, i) => (
         <Card
           key={i}
-          topIndent={card.pos || 0}
+          topIndent={card.pos}
         />
       ))}
     </View>

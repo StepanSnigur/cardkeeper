@@ -18,7 +18,9 @@ const styles = StyleSheet.create({
     elevation: 3,
     borderColor: '#000',
     borderStyle: 'solid',
-    borderWidth: 1
+    borderWidth: 1,
+    marginRight: 'auto',
+    marginLeft: 'auto',
   },
   cardText: {
     position: 'absolute',
@@ -30,12 +32,13 @@ const styles = StyleSheet.create({
 interface ICard {
   topIndent: number
 }
+const CARD_TOP_MARGIN = 30
 
 const Card: React.FC<ICard> = ({ topIndent }) => {
   const { colors } = useTheme()
 
   return (
-    <View style={[styles.cardWrapper, { backgroundColor: colors.primary, top: topIndent + 30 }]}>
+    <View style={[styles.cardWrapper, { backgroundColor: colors.primary, top: topIndent + CARD_TOP_MARGIN }]}>
       <Text style={styles.cardText}>card</Text>
     </View>
   )
