@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import {
   StyleSheet,
   View,
@@ -10,8 +10,9 @@ import Card from '../components/Card'
 
 interface ICardData {
   pos: number,
+  initialPos?: number,
   img: string,
-  isMoving?: boolean
+  isMoving?: boolean,
 }
 const styles = StyleSheet.create({
   cardsWrapper: {
@@ -33,29 +34,36 @@ const initialCards: ICardData[] = [
   {img: '', pos: 0},
   {img: '', pos: 0},
   {img: '', pos: 0},
-  {img: '', pos: 0},
   {img: '', pos: 0, isMoving: true},
 ]
 
 const CARD_HEIGHT = 175
 const SPACE_BETWEEN_CARDS = 25
 const FULL_CARD_HEIGHT = CARD_HEIGHT + SPACE_BETWEEN_CARDS
+const CARDS_TO_SHOW = 9
 
 const Cards = () => {
   const [initialCoors, setInitialCoords] = useState(0)
   const [scrolled, setScrolled] = useState(0)
   const [cards, setCards] = useState<ICardData[]>(initialCards)
+  const topScrollHeight = useRef<number>(0)
   const { colors } = useTheme()
 
   // places cards by default
   useEffect(() => {
     setCards(cards => {
+      let prevCardIndent = 0
       return cards.map((card, i) => {
-        const cardInitialPosition = i * i * 2
-        if (i === cards.length - 1) setScrolled(cardInitialPosition * -1)
+        const cardInitialPosition = getInitialCardPosition(i, cards.length, prevCardIndent)
+        prevCardIndent = cardInitialPosition
+        if (i === cards.length - 1) {
+          setScrolled(cardInitialPosition * -1)
+          topScrollHeight.current = cardInitialPosition * -1
+        }
         return {
           ...card,
-          pos: cardInitialPosition
+          pos: cardInitialPosition,
+          initialPos: cardInitialPosition
         }
       })
     })
@@ -69,7 +77,7 @@ const Cards = () => {
         if (checkCanMove(newCards, i)) card = { ...card, isMoving: true }
         return {
           ...card,
-          pos: card.isMoving ? calculateCardPosition(i) : card.pos
+          pos: card.isMoving ? calculateCardPosition(i, card.initialPos!) : card.pos
         }
       }).reverse()
     })
@@ -80,9 +88,15 @@ const Cards = () => {
       && cards[cardIdx - 1].isMoving
       && cards[cardIdx - 1].pos - cards[cardIdx].pos > FULL_CARD_HEIGHT
   }
-  const calculateCardPosition = (cardIdx: number) => {
+  const getInitialCardPosition = (i: number, cardsCount: number, prevCardPosition: number) => {
+    if (cardsCount - i > CARDS_TO_SHOW) {
+      return 0
+    } else {
+      return prevCardPosition ? prevCardPosition * 1.3 + 10 : 10
+    }
+  }
+  const calculateCardPosition = (cardIdx: number, initialPosition: number) => {
     const newPosition = (scrolled + cardIdx * FULL_CARD_HEIGHT) * -1
-    const initialPosition = Math.pow(cards.length - 1 - cardIdx, 2) * 2
     const maxTopIndent = FULL_CARD_HEIGHT * (cards.length - 1 - cardIdx)
 
     if (newPosition < initialPosition) return initialPosition
@@ -102,7 +116,7 @@ const Cards = () => {
   }
   const checkStopScroll = (deltaY: number) => {
     return cards.length <= 1
-      || (scrolled > 0  && deltaY > 0)
+      || (scrolled > topScrollHeight.current  && deltaY > 0)
       || (cards[1].pos >= FULL_CARD_HEIGHT && deltaY < 0)
   }
   const handleTouchEnd = () => {
