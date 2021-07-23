@@ -5,6 +5,11 @@ import Cards from '../screens/Cards'
 import Profile from '../screens/Profile'
 import Settings from '../screens/Settings'
 
+export const appNavigationRoutes = [
+  { name: 'Home', title: null, component: Cards },
+  { name: 'Profile', title: 'Профиль', component: Profile },
+  { name: 'Settings', title: 'Настройки', component: Settings }
+]
 const AppStack = createStackNavigator()
 
 const AppNavigation = () => {
@@ -14,9 +19,11 @@ const AppNavigation = () => {
         headerShown: false
       }}
     >
-      <AppStack.Screen name="Home" component={Cards} />
-      <AppStack.Screen name="Profile" component={Profile} />
-      <AppStack.Screen name="Settings" component={Settings} />
+      {appNavigationRoutes.map(route => <AppStack.Screen
+        name={route.name}
+        component={route.component}
+        key={route.name}
+      />)}
     </AppStack.Navigator>
   )
 }
