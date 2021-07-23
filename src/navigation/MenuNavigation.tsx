@@ -21,7 +21,7 @@ const MenuNavigation = () => {
     >
       <Drawer.Screen name="Авторизация" component={Auth} />
       <Drawer.Screen name="Регистрация" component={Registration} />
-      <Drawer.Screen name="Главная" component={Main} />
+      <Drawer.Screen name="Main" component={Main} />
     </Drawer.Navigator>
   )
 }

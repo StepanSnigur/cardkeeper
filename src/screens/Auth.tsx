@@ -52,6 +52,7 @@ const Auth: React.FC<AuthPage> = ({ navigation }) => {
   }
   const handleAuth = () => {
     console.log(email, password, 'auth')
+    navigation.navigate('Main')
     setEmail('')
     setPassword('')
   }
