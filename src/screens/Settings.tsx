@@ -51,6 +51,7 @@ const Settings = () => {
             borderBottomColor: colors.text,
             borderBottomWidth: i === settings.length - 1 ? 0 : 1
           }]}
+          key={key}
         >
           <Text style={styles.settingTitle}>{settingTitles[key]}</Text>
           <RadioButton value={key} status={defaultSettings[key] ? 'checked' : 'unchecked'} />

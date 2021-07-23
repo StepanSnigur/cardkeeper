@@ -72,7 +72,7 @@ const SideMenu: React.FC<any> = (props) => {
                 }}
                 size={50}
               />
-              <View style={{marginLeft:15, flexDirection:'column'}}>
+              <View style={{ marginLeft:15, flexDirection:'column' }}>
                 <Title style={styles.title}>name</Title>
                 <Caption style={styles.caption}>id</Caption>
               </View>
@@ -97,7 +97,7 @@ const SideMenu: React.FC<any> = (props) => {
                 />
               )}
               label="Добавить карту"
-              onPress={() => props.navigation.navigate('Home')}
+              onPress={() => props.navigation.navigate('AddCard')}
             />
             <DrawerItem
               labelStyle={{ color: props.themeColors.text }}
