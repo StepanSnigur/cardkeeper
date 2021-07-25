@@ -1,6 +1,6 @@
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
-import { Text, useTheme, RadioButton } from 'react-native-paper'
+import { Text, useTheme, Switch } from 'react-native-paper'
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -54,7 +54,7 @@ const Settings = () => {
           key={key}
         >
           <Text style={styles.settingTitle}>{settingTitles[key]}</Text>
-          <RadioButton value={key} status={defaultSettings[key] ? 'checked' : 'unchecked'} />
+          <Switch value={defaultSettings[key]} />
         </View>
       ))}
     </View>
