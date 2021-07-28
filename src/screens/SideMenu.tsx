@@ -48,8 +48,6 @@ const styles = StyleSheet.create({
   },
   bottomDrawerSection: {
     marginBottom: 15,
-    borderTopColor: '#f4f4f4',
-    borderTopWidth: 1
   },
   preference: {
     flexDirection: 'row',
@@ -60,6 +58,10 @@ const styles = StyleSheet.create({
 })
 
 const SideMenu: React.FC<any> = (props) => {
+  const handleLogOut = () => {
+    console.log('log out')
+  }
+
   return (
     <View style={{ flex:1, backgroundColor: props.themeColors.background }}>
       <DrawerContentScrollView {...props}>
@@ -149,7 +151,7 @@ const SideMenu: React.FC<any> = (props) => {
             />
           )}
           label="Sign Out"
-          onPress={() => {}}
+          onPress={handleLogOut}
         />
       </Drawer.Section>
     </View>
