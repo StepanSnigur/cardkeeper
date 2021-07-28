@@ -23,7 +23,8 @@ const AppNavigation = () => {
   return (
     <AppStack.Navigator
       screenOptions={{
-        headerShown: false
+        headerShown: false,
+        animationEnabled: false
       }}
     >
       {appNavigationRoutes.map(route => <AppStack.Screen
