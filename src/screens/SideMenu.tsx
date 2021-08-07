@@ -1,5 +1,6 @@
 import React from 'react'
 import { StyleSheet, View } from 'react-native'
+import { observer } from 'mobx-react-lite'
 import {
   DrawerContentScrollView,
   DrawerItem,
@@ -12,6 +13,7 @@ import {
   Drawer,
 } from 'react-native-paper'
 import Icon from 'react-native-vector-icons/AntDesign'
+import profile from '../store/profile'
 
 const styles = StyleSheet.create({
   drawerContent: {
@@ -57,7 +59,7 @@ const styles = StyleSheet.create({
   },
 })
 
-const SideMenu: React.FC<any> = (props) => {
+const SideMenu: React.FC<any> = observer((props) => {
   const handleLogOut = () => {
     console.log('log out')
   }
@@ -70,13 +72,13 @@ const SideMenu: React.FC<any> = (props) => {
             <View style={{ flexDirection:'row', marginTop: 15 }}>
               <Avatar.Image
                 source={{
-                  uri: 'https://api.adorable.io/avatars/50/abott@adorable.png'
+                  uri: profile.avatar || 'https://api.adorable.io/avatars/50/abott@adorable.png'
                 }}
                 size={50}
               />
               <View style={{ marginLeft:15, flexDirection:'column' }}>
-                <Title style={styles.title}>name</Title>
-                <Caption style={styles.caption}>id</Caption>
+                <Title style={styles.title}>{profile.email}</Title>
+                <Caption style={styles.caption}>{profile.userId}</Caption>
               </View>
             </View>
 
@@ -156,6 +158,6 @@ const SideMenu: React.FC<any> = (props) => {
       </Drawer.Section>
     </View>
   )
-}
+})
 
 export default SideMenu
