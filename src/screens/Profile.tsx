@@ -1,6 +1,8 @@
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
+import { observer } from 'mobx-react-lite'
 import { Text, Avatar, Button, useTheme } from 'react-native-paper'
+import profile from '../store/profile'
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -27,7 +29,7 @@ const styles = StyleSheet.create({
   },
 })
 
-const Profile = () => {
+const Profile = observer(() => {
   const { colors } = useTheme()
 
   const handleChangeEmail = () => {
@@ -42,11 +44,11 @@ const Profile = () => {
       <Avatar.Image
         style={styles.avatar}
         source={{
-          uri: 'https://api.adorable.io/avatars/50/abott@adorable.png'
+          uri: profile.avatar || 'https://api.adorable.io/avatars/50/abott@adorable.png'
         }}
         size={120}
       />
-      <Text style={styles.useEmail}>email@emali.com</Text>
+      <Text style={styles.useEmail}>{profile.email}</Text>
       <View style={styles.controls}>
         <Button
           mode="contained"
@@ -61,6 +63,6 @@ const Profile = () => {
       </View>
     </View>
   )
-}
+})
 
 export default Profile
