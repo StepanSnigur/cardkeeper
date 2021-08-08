@@ -1,11 +1,13 @@
 import React from 'react'
+import { observer } from 'mobx-react-lite'
 import { StatusBar } from 'expo-status-bar'
-import { Provider as PaperProvider, DarkTheme, Button } from 'react-native-paper'
+import { Provider as PaperProvider, DarkTheme, DefaultTheme } from 'react-native-paper'
 import { NavigationContainer } from '@react-navigation/native'
+import settings from './src/store/settings'
 
 import MenuNavigation from './src/navigation/MenuNavigation'
 
-const theme = {
+const darkTheme = {
   ...DarkTheme,
   dark: true,
   colors: {
@@ -17,16 +19,17 @@ const theme = {
     placeholder: '#fff'
   }
 }
+const lightTheme = DefaultTheme
 
-const App = () => {
+const App = observer(() => {
   return (
     <NavigationContainer>
-      <PaperProvider theme={theme}>
+      <PaperProvider theme={settings.darkTheme ? darkTheme : lightTheme}>
         <StatusBar />
         <MenuNavigation />
       </PaperProvider>
     </NavigationContainer>
   )
-}
+})
 
 export default App
