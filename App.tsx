@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar'
 import { Provider as PaperProvider, DarkTheme, DefaultTheme } from 'react-native-paper'
 import { NavigationContainer } from '@react-navigation/native'
 import settings from './src/store/settings'
+import * as SplashScreen from 'expo-splash-screen'
 
 import MenuNavigation from './src/navigation/MenuNavigation'
 
@@ -23,7 +24,14 @@ const lightTheme = DefaultTheme
 
 const App = observer(() => {
   useEffect(() => {
-    (async () => await settings.getDefaultSettings())()
+    const init = async () => {
+      await SplashScreen.preventAutoHideAsync()
+      await settings.getDefaultSettings()
+    }
+
+    init().finally(async () => {
+      await SplashScreen.hideAsync()
+    })
   }, [])
 
   return (
