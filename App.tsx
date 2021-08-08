@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
 import { StatusBar } from 'expo-status-bar'
 import { Provider as PaperProvider, DarkTheme, DefaultTheme } from 'react-native-paper'
@@ -22,6 +22,10 @@ const darkTheme = {
 const lightTheme = DefaultTheme
 
 const App = observer(() => {
+  useEffect(() => {
+    (async () => await settings.getDefaultSettings())()
+  }, [])
+
   return (
     <NavigationContainer>
       <PaperProvider theme={settings.darkTheme ? darkTheme : lightTheme}>
