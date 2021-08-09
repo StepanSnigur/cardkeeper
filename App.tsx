@@ -17,10 +17,16 @@ const darkTheme = {
     surface: '#181c25',
     background: '#161b22', //'#0D1117',
     text: '#c9d1d9',
-    placeholder: '#fff'
-  }
+    placeholder: '#fff',
+  },
 }
-const lightTheme = DefaultTheme
+const lightTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: '#30374a',
+  },
+}
 
 const App = observer(() => {
   useEffect(() => {
