@@ -1,19 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react'
+import { observer } from 'mobx-react-lite'
 import {
   StyleSheet,
   View,
   GestureResponderEvent,
 } from 'react-native'
-import { useTheme } from 'react-native-paper'
+import { useTheme, Text } from 'react-native-paper'
+import cardsData, { ICardData, IMovingCard } from '../store/cards'
 
 import Card from '../components/Card'
+import Preloader from '../components/Preloader'
 
-interface ICardData {
-  pos: number,
-  initialPos?: number,
-  img: string,
-  isMoving?: boolean,
-}
 const styles = StyleSheet.create({
   cardsWrapper: {
     flex: 1,
@@ -21,53 +18,65 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 20,
   },
+  emptyListPlaceholder: {
+    textAlign: 'center',
+    marginTop: 'auto',
+    marginBottom: 'auto',
+    fontSize: 16,
+  },
 })
-
-const initialCards: ICardData[] = [
-  {img: '', pos: 0},
-  {img: '', pos: 0},
-  {img: '', pos: 0},
-  {img: '', pos: 0},
-  {img: '', pos: 0},
-  {img: '', pos: 0},
-  {img: '', pos: 0},
-  {img: '', pos: 0},
-  {img: '', pos: 0},
-  {img: '', pos: 0},
-  {img: '', pos: 0, isMoving: true},
-]
 
 const CARD_HEIGHT = 175
 const SPACE_BETWEEN_CARDS = 25
 const FULL_CARD_HEIGHT = CARD_HEIGHT + SPACE_BETWEEN_CARDS
 const CARDS_TO_SHOW = 9
 
-const Cards = () => {
+const prepareCards = (cards: ICardData[]) => cards.map((card, i) => ({
+  ...card,
+  isMoving: i === cards.length - 1
+}))
+
+const Cards = observer(() => {
+  const [isLoading, setIsLoading] = useState(true)
   const [initialCoors, setInitialCoords] = useState(0)
   const [scrolled, setScrolled] = useState(0)
-  const [cards, setCards] = useState<ICardData[]>(initialCards)
+  const [cards, setCards] = useState<IMovingCard[]>([])
   const topScrollHeight = useRef<number>(0)
   const { colors } = useTheme()
 
   // places cards by default
-  useEffect(() => {
-    setCards(cards => {
-      let prevCardIndent = 0
-      return cards.map((card, i) => {
-        const cardInitialPosition = getInitialCardPosition(i, cards.length, prevCardIndent)
-        prevCardIndent = cardInitialPosition
-        if (i === cards.length - 1) {
-          setScrolled(cardInitialPosition * -1)
-          topScrollHeight.current = cardInitialPosition * -1
-        }
-        return {
-          ...card,
-          pos: cardInitialPosition,
-          initialPos: cardInitialPosition
-        }
-      })
-    })
+  useLayoutEffect(() => {
+    const init = async () => {
+      setIsLoading(true)
+      await cardsData.loadCards() // <- get cards from storage
+      setIsLoading(false)
+    }
+    init()
   }, [])
+  useEffect(() => {
+    if (cardsData.list.length) {
+      const cards = prepareCards(cardsData.list)
+
+      setCards(() => {
+        let prevCardIndent = 0
+        return cards.map((card, i) => {
+          const cardInitialPosition = getInitialCardPosition(i, cards.length, prevCardIndent)
+          prevCardIndent = cardInitialPosition
+          if (i === cards.length - 1) {
+            setScrolled(cardInitialPosition * -1)
+            topScrollHeight.current = cardInitialPosition * -1
+          }
+          return {
+            ...card,
+            pos: cardInitialPosition,
+            initialPos: cardInitialPosition
+          }
+        })
+      })
+    } else if (!cardsData.list.length) {
+      setCards([])
+    }
+  }, [cardsData.list])
 
   // moving cards on scroll
   useEffect(() => {
@@ -83,7 +92,7 @@ const Cards = () => {
     })
   }, [scrolled])
 
-  const checkCanMove = (cards: ICardData[], cardIdx: number) => {
+  const checkCanMove = (cards: IMovingCard[], cardIdx: number) => {
     return cards[cardIdx - 1]
       && cards[cardIdx - 1].isMoving
       && cards[cardIdx - 1].pos - cards[cardIdx].pos > FULL_CARD_HEIGHT
@@ -123,6 +132,15 @@ const Cards = () => {
     setInitialCoords(0)
   }
 
+  if (isLoading) return <Preloader />
+  if (!cards.length) return (
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <Text style={styles.emptyListPlaceholder}>
+        Список карт пока пуст
+      </Text>
+    </View>
+  )
+
   return (
     <View
       style={[styles.cardsWrapper, { backgroundColor: colors.background }]}
@@ -139,6 +157,6 @@ const Cards = () => {
       ))}
     </View>
   )
-}
+})
 
 export default Cards
