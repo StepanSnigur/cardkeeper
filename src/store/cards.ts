@@ -14,31 +14,44 @@ export interface IMovingCard extends ICardData {
 
 class Cards {
   list: ICardData[] = []
+  error: string | boolean = false
 
   constructor() {
     makeAutoObservable(this)
   }
 
   loadCards = async () => {
-    const cards = await AsyncStorage.getItem('cards') || JSON.stringify([])
-    const parsedCards = JSON.parse(cards)
-    if (parsedCards.length) parsedCards[parsedCards.length - 1].isMoving = true
-    runInAction(() => {
-      this.list = parsedCards
-    })
+    try {
+      const cards = await AsyncStorage.getItem('cards') || JSON.stringify([])
+      const parsedCards = JSON.parse(cards)
+      runInAction(() => {
+        this.list = parsedCards
+      })
+    } catch (e) {
+      this.error = 'Ошибка загрузки'
+    }
   }
   addCard = async (frontFace: string, backFace: string) => {
-    const card = { frontFace, backFace }
-    runInAction(() => {
-      this.list = [...this.list, card]
-    })
-    await AsyncStorage.setItem('cards', JSON.stringify(this.list))
+    try {
+      const card = { frontFace, backFace }
+      const newList = [...this.list, card]
+      await AsyncStorage.setItem('cards', JSON.stringify(newList))
+      runInAction(() => {
+        this.list = newList
+      })
+    } catch (e) {
+      this.error = 'Ошибка добавления карты'
+    }
   }
   deleteCards = async () => {
-    await AsyncStorage.removeItem('cards')
-    runInAction(() => {
-      this.list = []
-    })
+    try {
+      await AsyncStorage.removeItem('cards')
+      runInAction(() => {
+        this.list = []
+      })
+    } catch (e) {
+      this.error = 'Ошибка удаления'
+    }
   }
 }
 
