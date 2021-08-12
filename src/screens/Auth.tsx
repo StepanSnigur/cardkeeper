@@ -3,10 +3,12 @@ import { DrawerNavigationProp } from '@react-navigation/drawer'
 import { MenuNavigationParams } from '../navigation/MenuNavigation'
 import { View, StyleSheet } from 'react-native'
 import { Text, TextInput, Button, useTheme } from 'react-native-paper'
+import Icon from 'react-native-vector-icons/MaterialIcons'
 import {
   useFonts,
   EncodeSans_300Light,
 } from '@expo-google-fonts/encode-sans'
+import validator from '../utils/validator'
 
 type AuthPage = {
   navigation: DrawerNavigationProp<MenuNavigationParams, 'Main'>
@@ -31,11 +33,25 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     marginBottom: 40,
   },
+  validationError: {
+    width: '80%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  validationErrorText: {
+    color: '#dc3545',
+  },
+  validationErrorIcon: {
+    marginRight: 7,
+  },
 })
 
 const Auth: React.FC<AuthPage> = ({ navigation }) => {
   const [email, setEmail] = useState('')
+  const [emailError, setEmailError] = useState<string | boolean>(false)
   const [password, setPassword] = useState('')
+  const [passwordError, setPasswordError] = useState<string | boolean>(false)
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const { colors } = useTheme()
   const [fontsLoaded] = useFonts({ EncodeSans_300Light })
@@ -44,14 +60,21 @@ const Auth: React.FC<AuthPage> = ({ navigation }) => {
   const handleEmailChange = (value: string) => {
     setEmail(value)
   }
+  const handleEmailBlur = () => {
+    const isEmailValid = validator.validateEmail(email)
+    setEmailError(isEmailValid)
+  }
   const handlePasswordChange = (value: string) => {
     setPassword(value)
+  }
+  const handlePasswordBlur = () => {
+    const isPasswordValid = validator.validatePassword(password)
+    setPasswordError(isPasswordValid)
   }
   const handleChangePasswordVisible = () => {
     setIsPasswordVisible(!isPasswordVisible)
   }
   const handleAuth = () => {
-    console.log(email, password, 'auth')
     navigation.navigate('Main')
     setEmail('')
     setPassword('')
@@ -70,8 +93,13 @@ const Auth: React.FC<AuthPage> = ({ navigation }) => {
         label="Email"
         value={email}
         onChangeText={handleEmailChange}
+        onBlur={handleEmailBlur}
         style={styles.input}
       />
+      {emailError ? <View style={styles.validationError}>
+        <Icon name="error-outline" size={16} color="#dc3545" style={styles.validationErrorIcon} />
+        <Text style={styles.validationErrorText}>{emailError}</Text>
+      </View> : null}
       <TextInput
         mode="outlined"
         secureTextEntry={!isPasswordVisible}
@@ -80,10 +108,16 @@ const Auth: React.FC<AuthPage> = ({ navigation }) => {
         label="Пароль"
         value={password}
         onChangeText={handlePasswordChange}
+        onBlur={handlePasswordBlur}
         style={styles.input}
       />
+      {passwordError ? <View style={styles.validationError}>
+        <Icon name="error-outline" size={16} color="#dc3545" style={styles.validationErrorIcon} />
+        <Text style={styles.validationErrorText}>{passwordError}</Text>
+      </View> : null}
       <Button
         mode="outlined"
+        disabled={!!emailError || !!passwordError || !email.length || !password.length}
         theme={{ colors: { primary: colors.text } }}
         onPress={handleAuth}
         style={styles.button}
