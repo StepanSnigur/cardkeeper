@@ -7,7 +7,9 @@ import Auth from '../screens/Auth'
 import Registration from '../screens/Registration'
 
 export type MenuNavigationParams = {
-  Main: undefined
+  Main: undefined,
+  "Регистрация": undefined,
+  "Авторизация": undefined
 }
 const Drawer = createDrawerNavigator()
 
