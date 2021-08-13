@@ -6,7 +6,7 @@ describe('Auth screen', () => {
   })
 
   it('Correct shows email errors', () => {
-    cy.get('@email').focus()
+    cy.get('@email').type('t')
     cy.get('@email').blur()
     cy.contains(/некорректный email/i)
     cy.get('div[role=button][aria-disabled=true]').should('exist')
@@ -16,7 +16,7 @@ describe('Auth screen', () => {
     cy.contains(/некорректный email/i).should('not.exist')
   })
   it('Correct shows password errors', () => {
-    cy.get('@password').focus()
+    cy.get('@password').type('t')
     cy.get('@password').blur()
     cy.contains(/пароль должен быть длиннее 6 символов/i)
     cy.get('div[role=button][aria-disabled=true]').should('exist')

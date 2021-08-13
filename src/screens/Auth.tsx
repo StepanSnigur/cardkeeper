@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { DrawerNavigationProp } from '@react-navigation/drawer'
+import { Link } from '@react-navigation/native'
 import { MenuNavigationParams } from '../navigation/MenuNavigation'
 import { View, StyleSheet } from 'react-native'
 import { Text, TextInput, Button, useTheme } from 'react-native-paper'
@@ -11,7 +12,7 @@ import {
 import validator from '../utils/validator'
 
 type AuthPage = {
-  navigation: DrawerNavigationProp<MenuNavigationParams, 'Main'>
+  navigation: DrawerNavigationProp<MenuNavigationParams>
 }
 const styles = StyleSheet.create({
   wrapper: {
@@ -45,13 +46,23 @@ const styles = StyleSheet.create({
   validationErrorIcon: {
     marginRight: 7,
   },
+  registrationLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 20,
+    opacity: .9,
+  },
 })
 
 const Auth: React.FC<AuthPage> = ({ navigation }) => {
   const [email, setEmail] = useState('')
   const [emailError, setEmailError] = useState<string | boolean>(false)
+  const [emailErrorVisible, setEmailErrorVisible] = useState(false)
+
   const [password, setPassword] = useState('')
   const [passwordError, setPasswordError] = useState<string | boolean>(false)
+  const [passwordErrorVisible, setPasswordErrorVisible] = useState(false)
+
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const { colors } = useTheme()
   const [fontsLoaded] = useFonts({ EncodeSans_300Light })
@@ -59,17 +70,21 @@ const Auth: React.FC<AuthPage> = ({ navigation }) => {
 
   const handleEmailChange = (value: string) => {
     setEmail(value)
+    const emailValidationError = validator.validateEmail(value)
+    setEmailError(emailValidationError)
+    if (!emailValidationError) setEmailErrorVisible(false)
   }
   const handleEmailBlur = () => {
-    const isEmailValid = validator.validateEmail(email)
-    setEmailError(isEmailValid)
+    setEmailErrorVisible(!!emailError)
   }
   const handlePasswordChange = (value: string) => {
     setPassword(value)
+    const passwordValidationError = validator.validatePassword(value)
+    setPasswordError(passwordValidationError)
+    if (!passwordValidationError) setPasswordErrorVisible(false)
   }
   const handlePasswordBlur = () => {
-    const isPasswordValid = validator.validatePassword(password)
-    setPasswordError(isPasswordValid)
+    setPasswordErrorVisible(!!passwordError)
   }
   const handleChangePasswordVisible = () => {
     setIsPasswordVisible(!isPasswordVisible)
@@ -78,6 +93,9 @@ const Auth: React.FC<AuthPage> = ({ navigation }) => {
     navigation.navigate('Main')
     setEmail('')
     setPassword('')
+  }
+  const openRegistration = () => {
+    navigation.navigate('Регистрация')
   }
 
   return (
@@ -96,7 +114,7 @@ const Auth: React.FC<AuthPage> = ({ navigation }) => {
         onBlur={handleEmailBlur}
         style={styles.input}
       />
-      {emailError ? <View style={styles.validationError}>
+      {emailErrorVisible ? <View style={styles.validationError}>
         <Icon name="error-outline" size={16} color="#dc3545" style={styles.validationErrorIcon} />
         <Text style={styles.validationErrorText}>{emailError}</Text>
       </View> : null}
@@ -111,7 +129,7 @@ const Auth: React.FC<AuthPage> = ({ navigation }) => {
         onBlur={handlePasswordBlur}
         style={styles.input}
       />
-      {passwordError ? <View style={styles.validationError}>
+      {passwordErrorVisible ? <View style={styles.validationError}>
         <Icon name="error-outline" size={16} color="#dc3545" style={styles.validationErrorIcon} />
         <Text style={styles.validationErrorText}>{passwordError}</Text>
       </View> : null}
@@ -122,6 +140,10 @@ const Auth: React.FC<AuthPage> = ({ navigation }) => {
         onPress={handleAuth}
         style={styles.button}
       >Войти</Button>
+      <View style={styles.registrationLink}>
+        <Text>Еще нет аккаунта?</Text>
+        <Button onPress={openRegistration}>Создать</Button>
+      </View>
     </View>
   )
 }
