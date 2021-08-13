@@ -18,14 +18,15 @@
       "ts",
       "tsx",
       "js"
-    ]
+    ],
+    "testPathIgnorePatterns": ["<rootDir>/cypress/"]
   },
   "dependencies": {
     "@expo-google-fonts/encode-sans": "^0.2.0",
     "@react-native-async-storage/async-storage": "^1.15.5",
     "@react-native-community/masked-view": "0.1.10",
     "@react-navigation/drawer": "^5.12.5",
-    "@react-navigation/native": "^5.9.4",
+    "@react-navigation/native": "^6.0.2",
     "@react-navigation/stack": "^5.14.5",
     "@types/jest": "^26.0.24",
     "@types/react-native-vector-icons": "^6.4.7",
