@@ -24,9 +24,7 @@ class Cards {
     try {
       const cards = await AsyncStorage.getItem('cards') || JSON.stringify([])
       const parsedCards = JSON.parse(cards)
-      runInAction(() => {
-        this.list = parsedCards
-      })
+      this.setCards(parsedCards)
     } catch (e) {
       this.error = 'Ошибка загрузки'
     }
@@ -36,9 +34,7 @@ class Cards {
       const card = { frontFace, backFace }
       const newList = [...this.list, card]
       await AsyncStorage.setItem('cards', JSON.stringify(newList))
-      runInAction(() => {
-        this.list = newList
-      })
+      this.setCards(newList)
     } catch (e) {
       this.error = 'Ошибка добавления карты'
     }
@@ -46,12 +42,13 @@ class Cards {
   deleteCards = async () => {
     try {
       await AsyncStorage.removeItem('cards')
-      runInAction(() => {
-        this.list = []
-      })
+      this.setCards([])
     } catch (e) {
       this.error = 'Ошибка удаления'
     }
+  }
+  setCards = (cards: ICardData[]) => {
+    this.list = cards
   }
 }
 

@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { DrawerNavigationProp } from '@react-navigation/drawer'
-import { Link } from '@react-navigation/native'
 import { MenuNavigationParams } from '../navigation/MenuNavigation'
 import { View, StyleSheet } from 'react-native'
 import { Text, TextInput, Button, useTheme } from 'react-native-paper'
+import profile from '../store/profile'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import {
   useFonts,
@@ -55,6 +55,7 @@ const styles = StyleSheet.create({
 })
 
 const Auth: React.FC<AuthPage> = ({ navigation }) => {
+  const [isLoading, setIsLoading] = useState(false)
   const [email, setEmail] = useState('')
   const [emailError, setEmailError] = useState<string | boolean>(false)
   const [emailErrorVisible, setEmailErrorVisible] = useState(false)
@@ -67,6 +68,9 @@ const Auth: React.FC<AuthPage> = ({ navigation }) => {
   const { colors } = useTheme()
   const [fontsLoaded] = useFonts({ EncodeSans_300Light })
 
+  useEffect(() => {
+    if (profile.userId) navigation.navigate('Main')
+  }, [profile.userId])
 
   const handleEmailChange = (value: string) => {
     setEmail(value)
@@ -89,10 +93,10 @@ const Auth: React.FC<AuthPage> = ({ navigation }) => {
   const handleChangePasswordVisible = () => {
     setIsPasswordVisible(!isPasswordVisible)
   }
-  const handleAuth = () => {
-    navigation.navigate('Main')
-    setEmail('')
-    setPassword('')
+  const handleAuth = async () => {
+    setIsLoading(true)
+    await profile.logUserIn(email, password)
+    setIsLoading(false)
   }
   const openRegistration = () => {
     navigation.navigate('Регистрация')
@@ -136,6 +140,7 @@ const Auth: React.FC<AuthPage> = ({ navigation }) => {
       <Button
         mode="outlined"
         disabled={!!emailError || !!passwordError || !email.length || !password.length}
+        loading={isLoading}
         theme={{ colors: { primary: colors.text } }}
         onPress={handleAuth}
         style={styles.button}

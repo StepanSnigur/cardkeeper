@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { DrawerNavigationProp } from '@react-navigation/drawer'
 import { MenuNavigationParams } from '../navigation/MenuNavigation'
 import { View, StyleSheet } from 'react-native'
@@ -8,6 +8,7 @@ import {
   EncodeSans_300Light,
 } from '@expo-google-fonts/encode-sans'
 import Icon from 'react-native-vector-icons/MaterialIcons'
+import profile from '../store/profile'
 import validator from '../utils/validator'
 
 type RegistrationPage = {
@@ -54,6 +55,7 @@ const styles = StyleSheet.create({
 })
 
 const Registration: React.FC<RegistrationPage> = ({ navigation }) => {
+  const [isLoading, setIsLoading] = useState(false)
   const [email, setEmail] = useState('')
   const [emailError, setEmailError] = useState<string | boolean>(false)
   const [emailErrorVisible, setEmailErrorVisible] = useState(false)
@@ -70,6 +72,9 @@ const Registration: React.FC<RegistrationPage> = ({ navigation }) => {
   const { colors } = useTheme()
   const [fontsLoaded] = useFonts({ EncodeSans_300Light })
 
+  useEffect(() => {
+    if (profile.userId) navigation.navigate('Main')
+  }, [profile.userId])
 
   const handleEmailChange = (value: string) => {
     setEmail(value)
@@ -106,18 +111,17 @@ const Registration: React.FC<RegistrationPage> = ({ navigation }) => {
   const handleChangePasswordVisible = () => {
     setIsPasswordVisible(!isPasswordVisible)
   }
-  const handleAuth = () => {
+  const handleAuth = async () => {
     if (emailError
       || passwordError
       || comparablePasswordError
       || !email.length
       || !password.length
       || !comparablePassword.length) return
-    console.log('pass')
 
-    setEmail('')
-    setPassword('')
-    setComparablePassword('')
+    setIsLoading(true)
+    await profile.registerNewUser(email, password)
+    setIsLoading(false)
   }
   const openAuth = () => {
     navigation.navigate('Авторизация')
@@ -160,6 +164,7 @@ const Registration: React.FC<RegistrationPage> = ({ navigation }) => {
       </View> : null}
       <TextInput
         mode="outlined"
+        secureTextEntry={!isPasswordVisible}
         theme={{ colors: { primary: colors.text } }}
         label="Повторите пароль"
         value={comparablePassword}
@@ -179,6 +184,7 @@ const Registration: React.FC<RegistrationPage> = ({ navigation }) => {
           || !email.length
           || !password.length
           || !comparablePassword.length}
+        loading={isLoading}
         theme={{ colors: { primary: colors.text } }}
         onPress={handleAuth}
         style={styles.button}

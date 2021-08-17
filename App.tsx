@@ -7,6 +7,7 @@ import settings from './src/store/settings'
 import * as SplashScreen from 'expo-splash-screen'
 
 import MenuNavigation from './src/navigation/MenuNavigation'
+import Alert from './src/components/Alert'
 
 const darkTheme = {
   ...DarkTheme,
@@ -43,6 +44,7 @@ const App = observer(() => {
   return (
     <NavigationContainer>
       <PaperProvider theme={settings.darkTheme ? darkTheme : lightTheme}>
+        <Alert />
         <StatusBar />
         <MenuNavigation />
       </PaperProvider>

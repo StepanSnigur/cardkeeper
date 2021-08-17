@@ -19,7 +19,9 @@
       "tsx",
       "js"
     ],
-    "testPathIgnorePatterns": ["<rootDir>/cypress/"]
+    "testPathIgnorePatterns": [
+      "<rootDir>/cypress/"
+    ]
   },
   "dependencies": {
     "@expo-google-fonts/encode-sans": "^0.2.0",
@@ -30,6 +32,7 @@
     "@react-navigation/stack": "^5.14.5",
     "@types/jest": "^26.0.24",
     "@types/react-native-vector-icons": "^6.4.7",
+    "axios": "^0.21.1",
     "expo": "~42.0.0",
     "expo-font": "~9.2.1",
     "expo-splash-screen": "^0.11.2",
