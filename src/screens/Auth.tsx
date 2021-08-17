@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useLayoutEffect } from 'react'
+import { observer } from 'mobx-react-lite'
 import { DrawerNavigationProp } from '@react-navigation/drawer'
 import { MenuNavigationParams } from '../navigation/MenuNavigation'
 import { View, StyleSheet } from 'react-native'
-import { Text, TextInput, Button, useTheme } from 'react-native-paper'
+import { Text, TextInput, Button, useTheme, Checkbox } from 'react-native-paper'
 import profile from '../store/profile'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import {
@@ -52,9 +53,16 @@ const styles = StyleSheet.create({
     marginTop: 20,
     opacity: .9,
   },
+  rememberMe: {
+    width: '80%',
+    marginHorizontal: 'auto',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
 })
 
-const Auth: React.FC<AuthPage> = ({ navigation }) => {
+const Auth: React.FC<AuthPage> = observer(({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [email, setEmail] = useState('')
   const [emailError, setEmailError] = useState<string | boolean>(false)
@@ -65,12 +73,21 @@ const Auth: React.FC<AuthPage> = ({ navigation }) => {
   const [passwordErrorVisible, setPasswordErrorVisible] = useState(false)
 
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
   const { colors } = useTheme()
   const [fontsLoaded] = useFonts({ EncodeSans_300Light })
 
   useEffect(() => {
     if (profile.userId) navigation.navigate('Main')
   }, [profile.userId])
+  useLayoutEffect(() => {
+    const init = async () => {
+      setIsLoading(true)
+      await profile.checkAutoLogin()
+      setIsLoading(false)
+    }
+    init()
+  }, [])
 
   const handleEmailChange = (value: string) => {
     setEmail(value)
@@ -93,9 +110,12 @@ const Auth: React.FC<AuthPage> = ({ navigation }) => {
   const handleChangePasswordVisible = () => {
     setIsPasswordVisible(!isPasswordVisible)
   }
+  const handleChangeRememberMe = () => {
+    setRememberMe(!rememberMe)
+  }
   const handleAuth = async () => {
     setIsLoading(true)
-    await profile.logUserIn(email, password)
+    await profile.logUserIn(email, password, rememberMe)
     setIsLoading(false)
   }
   const openRegistration = () => {
@@ -137,6 +157,13 @@ const Auth: React.FC<AuthPage> = ({ navigation }) => {
         <Icon name="error-outline" size={16} color="#dc3545" style={styles.validationErrorIcon} />
         <Text style={styles.validationErrorText}>{passwordError}</Text>
       </View> : null}
+      <View style={styles.rememberMe}>
+        <Checkbox
+          status={rememberMe ? 'checked' : 'unchecked'}
+          onPress={handleChangeRememberMe}
+        />
+        <Text>Запомнить меня</Text>
+      </View>
       <Button
         mode="outlined"
         disabled={!!emailError || !!passwordError || !email.length || !password.length}
@@ -151,6 +178,6 @@ const Auth: React.FC<AuthPage> = ({ navigation }) => {
       </View>
     </View>
   )
-}
+})
 
 export default Auth

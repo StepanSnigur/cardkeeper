@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { observer } from 'mobx-react-lite'
 import { DrawerNavigationProp } from '@react-navigation/drawer'
 import { MenuNavigationParams } from '../navigation/MenuNavigation'
 import { View, StyleSheet } from 'react-native'
@@ -54,7 +55,7 @@ const styles = StyleSheet.create({
   },
 })
 
-const Registration: React.FC<RegistrationPage> = ({ navigation }) => {
+const Registration: React.FC<RegistrationPage> = observer(({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [email, setEmail] = useState('')
   const [emailError, setEmailError] = useState<string | boolean>(false)
@@ -195,6 +196,6 @@ const Registration: React.FC<RegistrationPage> = ({ navigation }) => {
       </View>
     </View>
   )
-}
+})
 
 export default Registration

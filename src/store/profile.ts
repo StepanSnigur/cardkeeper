@@ -1,9 +1,14 @@
 import { makeAutoObservable } from 'mobx'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import userApi from '../api/userApi'
-import settings from './settings'
-import cards from './cards'
+import settings, { ISettings } from './settings'
+import cards, { ICardData } from './cards'
 import alert from './alert'
 
+interface IRefreshData {
+  id: string | null,
+  refreshToken: string | null
+}
 class Profile {
   email: string | null = null
   avatar: string | null = null
@@ -14,17 +19,34 @@ class Profile {
     makeAutoObservable(this)
   }
 
-  logUserIn = async (email: string, password: string) => {
+  checkAutoLogin = async () => {
+    try {
+      const refreshData = await AsyncStorage.getItem('refreshData')
+      if (!refreshData) return false
+      const { id, refreshToken } = JSON.parse(refreshData)
+      if (!id || !refreshToken) return false
+
+      const data = await userApi.autoLogin(id, refreshToken)
+      const { email, isActivated, avatar, settings, cards } = data.user
+      this.setUser(id, email, isActivated, avatar, settings, cards)
+    } catch (e) {
+      alert.showAlertMessage('error', 'Автоматический вход в приложение не удался')
+    }
+  }
+  logUserIn = async (email: string, password: string, rememberMe: boolean) => {
     try {
       const data = await userApi.login(email, password)
-      const { id, avatar, isActivated } = data.user
-      this.setUserId(id)
-      this.setUserEmail(email)
-      this.setIsActivated(isActivated)
-      this.setAvatar(avatar)
+      const { id, avatar, isActivated, settings, cards } = data.user
+      this.setUser(id, email, isActivated, avatar, settings, cards)
 
-      settings.setSettings(data.user.settings)
-      cards.setCards(data.user.cards)
+      if (rememberMe) {
+        await AsyncStorage.setItem('refreshData', JSON.stringify({
+          refreshToken: data.refreshToken,
+          id
+        }))
+      } else {
+        await AsyncStorage.removeItem('refreshData')
+      }
     } catch (e) {
       alert.showAlertMessage('error', e.response.data.message)
     }
@@ -45,6 +67,22 @@ class Profile {
     }
   }
 
+  setUser(
+    id: string,
+    email: string,
+    isActivated: boolean,
+    avatar: string,
+    settingsData: ISettings,
+    cardsData: ICardData[]
+  ) {
+    this.setUserId(id)
+    this.setUserEmail(email)
+    this.setIsActivated(isActivated)
+    this.setAvatar(avatar)
+
+    settings.setSettings(settingsData)
+    cards.setCards(cardsData)
+  }
   setUserId(id: string) {
     this.userId = id
   }

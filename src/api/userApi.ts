@@ -7,6 +7,12 @@ class UserApi extends ApiConfig {
       password
     })
   }
+  autoLogin = async (userId: string, refreshToken: string) => {
+    return await this.makeRequest('user/autoLogin', {
+      id: userId,
+      refreshToken
+    })
+  }
   registration = async (email: string, password: string) => {
     return await this.makeRequest('user/registration', {
       email,
