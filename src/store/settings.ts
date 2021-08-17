@@ -22,13 +22,7 @@ class Settings implements ISettings {
       const defaultSettings = await AsyncStorage.getItem('defaultSettings') || null
       if (!defaultSettings) return
       const parsedSettings: ISettings = JSON.parse(defaultSettings)
-
-      Object.keys(parsedSettings).forEach(key => {
-        const settingKey = key as settingsKeys
-        runInAction(() => {
-          this[settingKey] = parsedSettings[settingKey]
-        })
-      })
+      this.setSettings(parsedSettings)
     } catch (e) {
       throw new Error('Ошибка получения настроек пользователя')
     }
@@ -40,6 +34,12 @@ class Settings implements ISettings {
     } catch (e) {
       throw new Error('Ошибка сохранения настроек пользователя')
     }
+  }
+  setSettings(settings: ISettings) {
+    Object.keys(settings).forEach(key => {
+      const settingKey = key as settingsKeys
+      this[settingKey] = settings[settingKey]
+    })
   }
 }
 export const titles: ISettingsTitles = {

@@ -37,7 +37,7 @@ const prepareCards = (cards: ICardData[]) => cards.map((card, i) => ({
 }))
 
 const Cards = observer(() => {
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
   const [initialCoors, setInitialCoords] = useState(0)
   const [scrolled, setScrolled] = useState(0)
   const [cards, setCards] = useState<IMovingCard[]>([])
@@ -45,14 +45,14 @@ const Cards = observer(() => {
   const { colors } = useTheme()
 
   // places cards by default
-  useLayoutEffect(() => {
-    const init = async () => {
-      setIsLoading(true)
-      await cardsData.loadCards() // <- get cards from storage
-      setIsLoading(false)
-    }
-    init()
-  }, [])
+  // useLayoutEffect(() => {
+  //   const init = async () => {
+  //     setIsLoading(true)
+  //     await cardsData.loadCards() // <- get cards from storage
+  //     setIsLoading(false)
+  //   }
+  //   init()
+  // }, [])
   useEffect(() => {
     if (cardsData.list.length) {
       const cards = prepareCards(cardsData.list)
