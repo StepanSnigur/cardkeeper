@@ -47,12 +47,6 @@ describe('Cards store', () => {
     expect(cards.list).toEqual([])
     expect(cards.error).toBeTruthy()
   })
-  it('Returns correct error on save', async () => {
-    setItem.mockImplementation(() => Promise.reject())
-    await cards.addCard('', '')
-    expect(cards.list).toEqual([])
-    expect(cards.error).toBeTruthy()
-  })
   it('Returns correct error on delete', async () => {
     await cards.addCard('', '')
     expect(cards.list.length).toBe(1)

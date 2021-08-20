@@ -1,5 +1,5 @@
 import React from 'react'
-import { createStackNavigator } from '@react-navigation/stack'
+import { createStackNavigator, StackNavigationProp } from '@react-navigation/stack'
 
 import Cards from '../screens/Cards'
 import Profile from '../screens/Profile'
@@ -11,6 +11,13 @@ interface IRoutes {
   title: string | null,
   component: React.FunctionComponent,
 }
+type IHomeScreenParamList = {
+  Home: undefined;
+  Profile: undefined;
+  Settings: undefined;
+  AddCard: undefined;
+}
+export type homeScreenType = StackNavigationProp<IHomeScreenParamList, 'Home'>
 export const appNavigationRoutes: IRoutes[] = [
   { name: 'Home', title: null, component: Cards },
   { name: 'Profile', title: 'Профиль', component: Profile },

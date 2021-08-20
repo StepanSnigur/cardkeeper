@@ -30,14 +30,10 @@ class Cards {
     }
   }
   addCard = async (frontFace: string, backFace: string) => {
-    try {
-      const card = { frontFace, backFace }
-      const newList = [...this.list, card]
-      await AsyncStorage.setItem('cards', JSON.stringify(newList))
-      this.setCards(newList)
-    } catch (e) {
-      this.error = 'Ошибка добавления карты'
-    }
+    const card = { frontFace, backFace }
+    const newList = [...this.list, card]
+    await AsyncStorage.setItem('cards', JSON.stringify(newList))
+    this.setCards(newList)
   }
   deleteCards = async () => {
     try {
