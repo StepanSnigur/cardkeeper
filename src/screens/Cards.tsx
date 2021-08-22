@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { observer } from 'mobx-react-lite'
 import {
   StyleSheet,
@@ -44,15 +44,6 @@ const Cards = observer(() => {
   const topScrollHeight = useRef<number>(0)
   const { colors } = useTheme()
 
-  // places cards by default
-  // useLayoutEffect(() => {
-  //   const init = async () => {
-  //     setIsLoading(true)
-  //     await cardsData.loadCards() // <- get cards from storage
-  //     setIsLoading(false)
-  //   }
-  //   init()
-  // }, [])
   useEffect(() => {
     if (cardsData.list.length) {
       const cards = prepareCards(cardsData.list)
@@ -149,10 +140,11 @@ const Cards = observer(() => {
       onResponderMove={handleScroll}
       onTouchEnd={handleTouchEnd}
     >
-      {cards.map((card, i) => (
+      {cards.map((card) => (
         <Card
-          key={i}
+          key={card._id}
           topIndent={card.pos}
+          frontFaceUri={card.frontFace}
         />
       ))}
     </View>

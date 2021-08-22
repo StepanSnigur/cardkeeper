@@ -112,6 +112,7 @@ const AddCard = observer(() => {
   const [hasPermission, setHasPermission] = useState<boolean | null>(false)
   const [camera, setCamera] = useState<Camera | null>(null)
   const [images, setImages] = useState<string[]>([])
+  const [base64Images, setBase64Images] = useState<string[]>([])
   const [activeCardFace, setActiveCardFace] = useState<number | null>(0)
   const cardCameraRef = useRef<View | null>(null)
   const navigation = useNavigation<homeScreenType>()
@@ -137,12 +138,17 @@ const AddCard = observer(() => {
             width: photo.width / 100 * 88, // 88% width from original size
             height: photo.height / 100 * 28, // 28% height from original size
           }
-        }])
+        }], { base64: true })
 
         if (activeCardFace !== null) {
           const newImages = [...images]
+          const newBase64Images = [...base64Images]
+
           newImages[activeCardFace] = cropImage.uri
+          newBase64Images[activeCardFace] = cropImage.base64 || cropImage.uri
+
           setImages(newImages)
+          setBase64Images(newBase64Images)
         }
         setNextCardFace()
       } catch (e) {
@@ -159,10 +165,11 @@ const AddCard = observer(() => {
   const handleCreateNewCard = async () => {
     try {
       setIsLoading(true)
-      await cards.addCard(images[0], images[1])
+      await cards.addCard(base64Images[0], base64Images[1])
       navigation.navigate('Home')
     } catch (e) {
-      alert.showAlertMessage('error', e.message)
+      console.log(e.response.data.message)
+      alert.showAlertMessage('error', e.response.data.message || e.message)
       setIsLoading(false)
     }
   }
