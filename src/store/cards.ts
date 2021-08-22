@@ -1,7 +1,9 @@
-import { makeAutoObservable, runInAction } from 'mobx'
+import { makeAutoObservable } from 'mobx'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import userApi from '../api/userApi'
 
 export interface ICardData {
+  _id: string,
   frontFace: string,
   backFace: string,
   initialPos?: number,
@@ -20,20 +22,21 @@ class Cards {
     makeAutoObservable(this)
   }
 
-  loadCards = async () => {
-    try {
-      const cards = await AsyncStorage.getItem('cards') || JSON.stringify([])
-      const parsedCards = JSON.parse(cards)
-      this.setCards(parsedCards)
-    } catch (e) {
-      this.error = 'Ошибка загрузки'
-    }
-  }
-  addCard = async (frontFace: string, backFace: string) => {
-    const card = { frontFace, backFace }
-    const newList = [...this.list, card]
-    await AsyncStorage.setItem('cards', JSON.stringify(newList))
-    this.setCards(newList)
+  // loadCards = async () => {
+  //   try {
+  //     const cards = await AsyncStorage.getItem('cards') || JSON.stringify([])
+  //     const parsedCards = JSON.parse(cards)
+  //     this.setCards(parsedCards)
+  //   } catch (e) {
+  //     this.error = 'Ошибка загрузки'
+  //   }
+  // }
+  addCard = async (frontFace: string, backFace: string) => { // base64
+    const cards = await userApi.addCard(frontFace, backFace)
+    console.log(cards)
+    // const cards: ICardData[] = []
+    // await AsyncStorage.setItem('cards', JSON.stringify(cards))
+    this.setCards(cards)
   }
   deleteCards = async () => {
     try {
@@ -43,6 +46,7 @@ class Cards {
       this.error = 'Ошибка удаления'
     }
   }
+
   setCards = (cards: ICardData[]) => {
     this.list = cards
   }

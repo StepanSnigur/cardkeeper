@@ -13,6 +13,7 @@ class Profile {
   email: string | null = null
   avatar: string | null = null
   userId: string | null = null
+  accessToken: string | null = null
   isActivated: boolean = false
 
   constructor() {
@@ -28,6 +29,7 @@ class Profile {
 
       const data = await userApi.autoLogin(id, refreshToken)
       const { email, isActivated, avatar, settings, cards } = data.user
+      this.setAccessToken(data.accessToken)
       this.setUser(id, email, isActivated, avatar, settings, cards)
     } catch (e) {
       alert.showAlertMessage('error', 'Автоматический вход в приложение не удался')
@@ -37,6 +39,8 @@ class Profile {
     try {
       const data = await userApi.login(email, password)
       const { id, avatar, isActivated, settings, cards } = data.user
+      this.setAccessToken(data.accessToken)
+      userApi.addToken(data.accessToken)
       this.setUser(id, email, isActivated, avatar, settings, cards)
 
       if (rememberMe) {
@@ -85,6 +89,9 @@ class Profile {
   }
   setUserId(id: string) {
     this.userId = id
+  }
+  setAccessToken(token: string) {
+    this.accessToken = token
   }
   setUserEmail(email: string) {
     this.email = email
