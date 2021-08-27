@@ -2,6 +2,7 @@ import axios from 'axios'
 
 class ApiConfig {
   dbUrl = 'https://cardkeeper-backend.herokuapp.com'
+  progressListener = (e: ProgressEvent) => {}
 
   makeRequest = async (
     url: string,
@@ -16,12 +17,19 @@ class ApiConfig {
       headers: {
         'Content-Type': contentType,
       },
+      onUploadProgress: this.progressListener
     })
     return response.data
   }
   addToken = (accessToken: string) => {
     axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
     return this
+  }
+  addProgressListener = (fn: (e: ProgressEvent) => void) => {
+    this.progressListener = fn
+  }
+  removeProgressListener = () => {
+    this.progressListener = () => {}
   }
 }
 
