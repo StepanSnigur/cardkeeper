@@ -14,18 +14,22 @@ const darkTheme = {
   dark: true,
   colors: {
     ...DarkTheme.colors,
-    primary: '#30374a',
-    surface: '#181c25',
-    background: '#161b22', //'#0D1117',
-    text: '#c9d1d9',
-    placeholder: '#fff',
+    primary: '#0F4C75',
+    surface: '#3282B8',
+    background: '#1B262C',
+    text: '#BBE1FA',
+    placeholder: '#BBE1FA',
   },
 }
 const lightTheme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    primary: '#30374a',
+    primary: '#CCF2F4',
+    surface: '#A4EBF3',
+    background: '#F4F9F9',
+    text: '#596E79',
+    placeholder: '#596E79',
   },
 }
 
