@@ -5,7 +5,6 @@ import fileApi from '../api/fileApi'
 
 const styles = StyleSheet.create({
   cardWrapper: {
-    position: 'absolute',
     width: '80%',
     height: 175,
     borderRadius: 12,
@@ -22,6 +21,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginRight: 'auto',
     marginLeft: 'auto',
+    marginBottom: 20,
     overflow: 'hidden',
   },
   cardText: {
@@ -38,12 +38,10 @@ const styles = StyleSheet.create({
 })
 
 interface ICard {
-  topIndent: number,
   frontFaceUri: string
 }
-const CARD_TOP_MARGIN = 30
 
-const Card: React.FC<ICard> = ({ topIndent, frontFaceUri }) => {
+const Card: React.FC<ICard> = ({ frontFaceUri }) => {
   const [image, setImage] = useState<string | null>(null)
   const { colors } = useTheme()
 
@@ -60,7 +58,9 @@ const Card: React.FC<ICard> = ({ topIndent, frontFaceUri }) => {
   }, [])
 
   return (
-    <View style={[styles.cardWrapper, { backgroundColor: colors.primary, top: topIndent + CARD_TOP_MARGIN }]}>
+    <View style={[styles.cardWrapper, {
+      backgroundColor: colors.primary,
+    }]}>
       <Image
         source={{ uri: `data:image/png;base64,${image}` }}
         style={styles.cardFace}
