@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { observer } from 'mobx-react-lite'
-import { StyleSheet, TouchableOpacity, View, Image } from 'react-native'
+import { StyleSheet, TouchableOpacity, View, Image, Animated } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { homeScreenType } from '../navigation/AppNavigation'
 import { useTheme, Text, IconButton } from 'react-native-paper'
@@ -8,6 +8,7 @@ import { Camera } from 'expo-camera'
 import * as ImageManipulator from 'expo-image-manipulator'
 import cards from '../store/cards'
 import alert from '../store/alert'
+import LinePreloader from '../components/LinePreloader'
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -109,6 +110,7 @@ const styles = StyleSheet.create({
 
 const AddCard = observer(() => {
   const [isLoading, setIsLoading] = useState(false)
+  const [progressBar, setProgressBar] = useState(0)
   const [hasPermission, setHasPermission] = useState<boolean | null>(false)
   const [camera, setCamera] = useState<Camera | null>(null)
   const [images, setImages] = useState<string[]>([])
@@ -126,6 +128,12 @@ const AddCard = observer(() => {
     init()
   }, [])
 
+  const handleLoadImages = (e: ProgressEvent) => {
+    const { loaded, total } = e
+
+    const completed = Math.round(loaded * 100 / total)
+    setProgressBar(completed)
+  }
   const handleTakePicture = async () => {
     if (camera && cardCameraRef.current) {
       try {
@@ -165,7 +173,7 @@ const AddCard = observer(() => {
   const handleCreateNewCard = async () => {
     try {
       setIsLoading(true)
-      await cards.addCard(base64Images[0], base64Images[1])
+      await cards.addCard(base64Images[0], base64Images[1], handleLoadImages)
       navigation.navigate('Home')
     } catch (e) {
       console.log(e.response.data.message)
@@ -178,6 +186,7 @@ const AddCard = observer(() => {
   if (hasPermission === false) return <Text>Нет доступа к камере</Text>
   return (
     <View style={[styles.wrapper, { backgroundColor: colors.background }]}>
+      <LinePreloader progress={progressBar} />
       <Camera
         type={Camera.Constants.Type.back}
         style={styles.camera}

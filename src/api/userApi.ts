@@ -28,13 +28,21 @@ class UserApi extends ApiConfig {
       avatar: file
     })
   }
-  addCard = async (frontFace: string, backFace: string) => {
-    return await this.makeRequest('user/addCard', {
+  addCard = async (
+    frontFace: string,
+    backFace: string,
+    checkLoadProgress: (e: ProgressEvent) => void
+  ) => {
+    this.addProgressListener(checkLoadProgress)
+    const res =  await this.makeRequest('user/addCard', {
       cardFaces: [
         { base64: frontFace, type: 'image/jpeg' },
         { base64: backFace, type: 'image/jpeg' }
       ]
     })
+    this.removeProgressListener()
+
+    return res
   }
 }
 

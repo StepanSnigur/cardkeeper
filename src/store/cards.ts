@@ -31,8 +31,12 @@ class Cards {
   //     this.error = 'Ошибка загрузки'
   //   }
   // }
-  addCard = async (frontFace: string, backFace: string) => { // base64
-    const cards = await userApi.addCard(frontFace, backFace)
+  addCard = async (
+    frontFace: string, // base64
+    backFace: string, // base64
+    checkLoadProgress: (e: ProgressEvent) => void
+  ) => {
+    const cards = await userApi.addCard(frontFace, backFace, checkLoadProgress)
     console.log(cards)
     // const cards: ICardData[] = []
     // await AsyncStorage.setItem('cards', JSON.stringify(cards))
