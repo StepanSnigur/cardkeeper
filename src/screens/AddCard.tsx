@@ -137,8 +137,8 @@ const AddCard = observer(() => {
             originY: photo.height / 100 * 12, // 12% from left
             width: photo.width / 100 * 88, // 88% width from original size
             height: photo.height / 100 * 28, // 28% height from original size
-          }
-        }], { base64: true })
+          },
+        }], { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG, base64: true })
 
         if (activeCardFace !== null) {
           const newImages = [...images]
