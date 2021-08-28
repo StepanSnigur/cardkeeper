@@ -78,7 +78,6 @@ const SideMenu: React.FC<any> = observer((props) => {
               />
               <View style={{ marginLeft:15, flexDirection:'column' }}>
                 <Title style={styles.title}>{profile.email}</Title>
-                <Caption style={styles.caption}>{profile.userId}</Caption>
               </View>
             </View>
 
