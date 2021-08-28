@@ -1,5 +1,5 @@
 import React from 'react'
-import { createDrawerNavigator } from '@react-navigation/drawer'
+import { createDrawerNavigator, DrawerContentComponentProps } from '@react-navigation/drawer'
 import { useTheme } from 'react-native-paper'
 import Main from '../screens/Main'
 import SideMenu from '../screens/SideMenu'
@@ -19,7 +19,7 @@ const MenuNavigation = () => {
   return (
     <Drawer.Navigator
       initialRouteName="Авторизация"
-      drawerContent={props => <SideMenu themeColors={colors} {...props} />}
+      drawerContent={(props: DrawerContentComponentProps) => <SideMenu themeColors={colors} {...props} />}
     >
       <Drawer.Screen name="Авторизация" component={Auth} />
       <Drawer.Screen name="Регистрация" component={Registration} />
