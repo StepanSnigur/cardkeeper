@@ -59,9 +59,16 @@ const styles = StyleSheet.create({
   },
 })
 
-const SideMenu: React.FC<any> = observer((props) => {
-  const handleLogOut = () => {
-    console.log('log out')
+interface ISideMenu {
+  navigation: any,
+  themeColors: any
+}
+const SideMenu: React.FC<ISideMenu> = observer((props) => {
+  const handleLogOut = async () => {
+    await profile.logout(goToLoginScreen)
+  }
+  const goToLoginScreen = () => {
+    props.navigation.navigate('Авторизация')
   }
 
   return (

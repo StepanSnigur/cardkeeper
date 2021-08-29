@@ -5,10 +5,6 @@ import settings, { ISettings } from './settings'
 import cards, { ICardData } from './cards'
 import alert from './alert'
 
-interface IRefreshData {
-  id: string | null,
-  refreshToken: string | null
-}
 class Profile {
   email: string | null = null
   avatar: string | null = null
@@ -70,13 +66,31 @@ class Profile {
       alert.showAlertMessage('error', e.response.data.message)
     }
   }
+  logout = async (goToLoginScreen: () => void) => {
+    try {
+      await userApi.logout()
+      await AsyncStorage.removeItem('refreshData')
+      this.setUser(
+        null,
+        null,
+        false,
+        null,
+        undefined,
+        []
+      )
+      this.setAccessToken(null)
+      goToLoginScreen()
+    } catch (e) {
+      alert.showAlertMessage('error', e.response.data.message)
+    }
+  }
 
   setUser(
-    id: string,
-    email: string,
+    id: string | null,
+    email: string | null,
     isActivated: boolean,
-    avatar: string,
-    settingsData: ISettings,
+    avatar: string | null,
+    settingsData: ISettings | undefined,
     cardsData: ICardData[]
   ) {
     this.setUserId(id)
@@ -87,19 +101,19 @@ class Profile {
     settings.setSettings(settingsData)
     cards.setCards(cardsData)
   }
-  setUserId(id: string) {
+  setUserId(id: string | null) {
     this.userId = id
   }
-  setAccessToken(token: string) {
+  setAccessToken(token: string | null) {
     this.accessToken = token
   }
-  setUserEmail(email: string) {
+  setUserEmail(email: string | null) {
     this.email = email
   }
   setIsActivated(isActivated: boolean) {
     this.isActivated = isActivated
   }
-  setAvatar(avatar: string) {
+  setAvatar(avatar: string | null) {
     this.avatar = avatar
   }
 }
