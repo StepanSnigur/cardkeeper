@@ -5,15 +5,19 @@ class ApiConfig {
   dbUrl = 'https://cardkeeper-backend.herokuapp.com'
   progressListener = (e: ProgressEvent) => {}
 
+  static _isRetry = false
+
   constructor() {
     axios.interceptors.response.use(config => config, async error => {
       const originalReq = error.config
-      if (+error.response.status === 401) {
+      if (+error.response.status === 401 && error.config && !ApiConfig._isRetry) {
+        ApiConfig._isRetry = true
         try {
-          const res = await axios.get('https://cardkeeper-backend.herokuapp.com/user/refresh', {
+          const res = await axios.get(`${this.dbUrl}/user/refresh`, {
             withCredentials: true,
           })
           const { accessToken } = res.data
+
           await AsyncStorage.setItem('accessToken', accessToken)
           this.addToken(accessToken)
           return axios.request(originalReq)
@@ -21,6 +25,7 @@ class ApiConfig {
           console.log('Unauthorized user')
         }
       }
+      throw error
     })
   }
 
