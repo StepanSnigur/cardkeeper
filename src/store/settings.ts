@@ -1,4 +1,4 @@
-import { makeAutoObservable, runInAction } from 'mobx'
+import { makeAutoObservable } from 'mobx'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export interface ISettings {
@@ -35,11 +35,13 @@ class Settings implements ISettings {
       throw new Error('Ошибка сохранения настроек пользователя')
     }
   }
-  setSettings(settings: ISettings) {
-    Object.keys(settings).forEach(key => {
-      const settingKey = key as settingsKeys
-      this[settingKey] = settings[settingKey]
-    })
+  setSettings(settings?: ISettings) {
+    if (settings) {
+      Object.keys(settings).forEach(key => {
+        const settingKey = key as settingsKeys
+        this[settingKey] = settings[settingKey]
+      })
+    }
   }
 }
 export const titles: ISettingsTitles = {

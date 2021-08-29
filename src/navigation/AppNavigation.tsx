@@ -12,10 +12,10 @@ interface IRoutes {
   component: React.FunctionComponent,
 }
 type IHomeScreenParamList = {
-  Home: undefined;
-  Profile: undefined;
-  Settings: undefined;
-  AddCard: undefined;
+  Home: undefined
+  Profile: undefined
+  Settings: undefined
+  AddCard: undefined
 }
 export type homeScreenType = StackNavigationProp<IHomeScreenParamList, 'Home'>
 export const appNavigationRoutes: IRoutes[] = [
