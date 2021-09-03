@@ -9,7 +9,7 @@ import AddCard from '../screens/AddCard'
 interface IRoutes {
   name: string,
   title: string | null,
-  component: React.FunctionComponent,
+  component: React.FunctionComponent<any>,
 }
 type IHomeScreenParamList = {
   Home: undefined
