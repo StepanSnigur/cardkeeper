@@ -10,7 +10,7 @@ class ApiConfig {
   constructor() {
     axios.interceptors.response.use(config => config, async error => {
       const originalReq = error.config
-      if (+error.response.status === 401 && error.config && !ApiConfig._isRetry) {
+      if (error.response && +error.response.status === 401 && error.config && !ApiConfig._isRetry) {
         ApiConfig._isRetry = true
         try {
           const res = await axios.get(`${this.dbUrl}/user/refresh`, {

@@ -6,12 +6,6 @@ export interface ICardData {
   _id: string,
   frontFace: string,
   backFace: string,
-  initialPos?: number,
-  pos?: number,
-  isMoving?: boolean
-}
-export interface IMovingCard extends ICardData {
-  pos: number
 }
 
 class Cards {

@@ -5,12 +5,15 @@ import {
   View,
   SafeAreaView,
   ScrollView,
+  TouchableOpacity,
 } from 'react-native'
 import { useTheme, Text } from 'react-native-paper'
-import cardsData from '../store/cards'
+import cardsData, { ICardData } from '../store/cards'
 
 import Card from '../components/Card'
 import Preloader from '../components/Preloader'
+import { DrawerNavigationProp } from '@react-navigation/drawer'
+import { MenuNavigationParams } from '../navigation/MenuNavigation'
 
 const styles = StyleSheet.create({
   scrollContainer: {
@@ -29,9 +32,16 @@ const styles = StyleSheet.create({
   },
 })
 
-const Cards = observer(() => {
+interface ICards {
+  navigation: DrawerNavigationProp<MenuNavigationParams>
+}
+const Cards: React.FC<ICards> = observer(({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false)
   const { colors } = useTheme()
+
+  const handleOpenCard = (cardData: ICardData) => {
+    navigation.navigate('Card', cardData)
+  }
 
   if (isLoading) return <Preloader />
   if (!cardsData.list.length) return (
@@ -46,10 +56,14 @@ const Cards = observer(() => {
     <SafeAreaView style={[styles.scrollContainer, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.cardsWrapper}>
         {cardsData.list.map((card) => (
-          <Card
+          <TouchableOpacity
+            style={{ width: '100%' }}
+            activeOpacity={1}
+            onPress={() => handleOpenCard(card)}
             key={card._id}
-            frontFaceUri={card.frontFace}
-          />
+          >
+            <Card frontFaceUri={card.frontFace} />
+          </TouchableOpacity>
         ))}
       </ScrollView>
     </SafeAreaView>

@@ -2,7 +2,10 @@ import React, { useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
 import { StatusBar } from 'expo-status-bar'
 import { Provider as PaperProvider, DarkTheme, DefaultTheme } from 'react-native-paper'
-import { NavigationContainer } from '@react-navigation/native'
+import {
+  NavigationContainer,
+  DefaultTheme as DefaultNavigationTheme,
+} from '@react-navigation/native'
 import settings from './src/store/settings'
 import * as SplashScreen from 'expo-splash-screen'
 
@@ -36,6 +39,9 @@ const lightTheme = {
 const App = observer(() => {
   useEffect(() => {
     const init = async () => {
+      DefaultNavigationTheme.colors.background = settings.darkTheme
+        ? darkTheme.colors.background
+        : lightTheme.colors.background
       await SplashScreen.preventAutoHideAsync()
       await settings.getDefaultSettings()
     }
@@ -46,7 +52,7 @@ const App = observer(() => {
   }, [])
 
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={DefaultNavigationTheme}>
       <PaperProvider theme={settings.darkTheme ? darkTheme : lightTheme}>
         <Alert />
         <StatusBar />
