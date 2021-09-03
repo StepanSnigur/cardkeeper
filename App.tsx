@@ -11,6 +11,7 @@ import * as SplashScreen from 'expo-splash-screen'
 
 import MenuNavigation from './src/navigation/MenuNavigation'
 import Alert from './src/components/Alert'
+import CardInfo from './src/screens/CardInfo'
 
 const darkTheme = {
   ...DarkTheme,
@@ -57,6 +58,7 @@ const App = observer(() => {
         <Alert />
         <StatusBar />
         <MenuNavigation />
+        <CardInfo />
       </PaperProvider>
     </NavigationContainer>
   )

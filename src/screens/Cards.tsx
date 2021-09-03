@@ -9,11 +9,10 @@ import {
 } from 'react-native'
 import { useTheme, Text } from 'react-native-paper'
 import cardsData, { ICardData } from '../store/cards'
+import cardInfo from '../store/cardInfo'
 
 import Card from '../components/Card'
 import Preloader from '../components/Preloader'
-import { DrawerNavigationProp } from '@react-navigation/drawer'
-import { MenuNavigationParams } from '../navigation/MenuNavigation'
 
 const styles = StyleSheet.create({
   scrollContainer: {
@@ -32,15 +31,12 @@ const styles = StyleSheet.create({
   },
 })
 
-interface ICards {
-  navigation: DrawerNavigationProp<MenuNavigationParams>
-}
-const Cards: React.FC<ICards> = observer(({ navigation }) => {
+const Cards = observer(() => {
   const [isLoading, setIsLoading] = useState(false)
   const { colors } = useTheme()
 
   const handleOpenCard = (cardData: ICardData) => {
-    navigation.navigate('Card', cardData)
+    cardInfo.openCard(cardData)
   }
 
   if (isLoading) return <Preloader />
