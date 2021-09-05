@@ -6,6 +6,7 @@ export interface ICardData {
   _id: string,
   frontFace: string,
   backFace: string,
+  qrCodes: string[],
 }
 
 class Cards {
@@ -28,9 +29,10 @@ class Cards {
   addCard = async (
     frontFace: string, // base64
     backFace: string, // base64
+    qrCodes: string[],
     checkLoadProgress: (e: ProgressEvent) => void
   ) => {
-    const cards = await userApi.addCard(frontFace, backFace, checkLoadProgress)
+    const cards = await userApi.addCard(frontFace, backFace, qrCodes, checkLoadProgress)
     console.log(cards)
     // const cards: ICardData[] = []
     // await AsyncStorage.setItem('cards', JSON.stringify(cards))
