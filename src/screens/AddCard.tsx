@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { observer } from 'mobx-react-lite'
-import { StyleSheet, TouchableOpacity, View, Image, Animated } from 'react-native'
+import { StyleSheet, TouchableOpacity, View, Image } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { homeScreenType } from '../navigation/AppNavigation'
 import { useTheme, Text, IconButton } from 'react-native-paper'
 import { Camera } from 'expo-camera'
+import { BarCodeScanner } from 'expo-barcode-scanner'
 import * as ImageManipulator from 'expo-image-manipulator'
 import cards from '../store/cards'
 import alert from '../store/alert'
@@ -170,10 +171,17 @@ const AddCard = observer(() => {
     const nextCardFaceNum: number | null = activeCardFace < 1 ? activeCardFace + 1 : null
     setActiveCardFace(nextCardFaceNum)
   }
+  const scanQRCodes = async (cards: string[]) => {
+    const scannedCodes = cards.map(async cardUri => await BarCodeScanner.scanFromURLAsync(cardUri))
+    return await Promise.all(scannedCodes)
+  }
   const handleCreateNewCard = async () => {
     try {
       setIsLoading(true)
-      await cards.addCard(base64Images[0], base64Images[1], handleLoadImages)
+      const qrCodes = await scanQRCodes(images)
+      const qrData = qrCodes.flat().map(code => code.data)
+      console.log(qrData, 'codes')
+      await cards.addCard(base64Images[0], base64Images[1], qrData, handleLoadImages)
       navigation.navigate('Home')
     } catch (e) {
       console.log(e.response.data.message)

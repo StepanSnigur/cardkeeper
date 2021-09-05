@@ -31,6 +31,7 @@ class UserApi extends ApiConfig {
   addCard = async (
     frontFace: string,
     backFace: string,
+    qrCodes: string[],
     checkLoadProgress: (e: ProgressEvent) => void
   ) => {
     this.addProgressListener(checkLoadProgress)
@@ -38,7 +39,8 @@ class UserApi extends ApiConfig {
       cardFaces: [
         { base64: frontFace, type: 'image/jpeg' },
         { base64: backFace, type: 'image/jpeg' }
-      ]
+      ],
+      qrCodes,
     })
     this.removeProgressListener()
 
