@@ -8,7 +8,7 @@ import {
   GestureResponderEvent,
 } from 'react-native'
 import { useTheme, IconButton, Text } from 'react-native-paper'
-import QRCode from 'react-qr-code'
+import QRCode from 'react-native-qrcode-svg'
 import Card from '../components/Card'
 import cardInfo from '../store/cardInfo'
 
