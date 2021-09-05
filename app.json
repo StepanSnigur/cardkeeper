@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "cardkeeper",
+    "name": "CardKeeper",
     "slug": "cardkeeper",
-    "version": "1.0.0",
+    "version": "1.2.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
