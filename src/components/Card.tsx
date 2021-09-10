@@ -28,6 +28,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 10,
     right: 10,
+    zIndex: 1,
+    backgroundColor: '#000',
+    opacity: .5,
+    borderRadius: 5,
+    padding: 5,
   },
   cardFace: {
     position: 'absolute',
@@ -39,9 +44,10 @@ const styles = StyleSheet.create({
 
 interface ICard {
   frontFaceUri: string
+  name: string
 }
 
-const Card: React.FC<ICard> = ({ frontFaceUri }) => {
+const Card: React.FC<ICard> = ({ frontFaceUri, name }) => {
   const [image, setImage] = useState<string | null>(null)
   const { colors } = useTheme()
 
@@ -65,7 +71,7 @@ const Card: React.FC<ICard> = ({ frontFaceUri }) => {
         source={{ uri: `data:image/png;base64,${image}` }}
         style={styles.cardFace}
       />
-      <Text style={styles.cardText}>card</Text>
+      <Text style={styles.cardText}>{name}</Text>
     </View>
   )
 }
