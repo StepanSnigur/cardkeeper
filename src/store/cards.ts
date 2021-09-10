@@ -13,6 +13,7 @@ export interface ICardData {
 class Cards {
   list: ICardData[] = []
   error: string | boolean = false
+  searchTerm: string = ''
 
   constructor() {
     makeAutoObservable(this)
@@ -43,8 +44,18 @@ class Cards {
     }
   }
 
+  get filteredCards() {
+    return this.list.filter(card => card
+      .cardName
+      .toLocaleLowerCase()
+      .includes(this.searchTerm.toLocaleLowerCase()))
+  }
+
   setCards = (cards: ICardData[]) => {
     this.list = cards
+  }
+  setSearchTerm = (searchTerm: string) => {
+    this.searchTerm = searchTerm
   }
 }
 

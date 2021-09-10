@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
 
 interface ICard {
   frontFaceUri: string
-  name: string
+  name?: string
 }
 
 const Card: React.FC<ICard> = ({ frontFaceUri, name }) => {
@@ -71,7 +71,7 @@ const Card: React.FC<ICard> = ({ frontFaceUri, name }) => {
         source={{ uri: `data:image/png;base64,${image}` }}
         style={styles.cardFace}
       />
-      <Text style={styles.cardText}>{name}</Text>
+      {name ? <Text style={styles.cardText}>{name}</Text> : null}
     </View>
   )
 }

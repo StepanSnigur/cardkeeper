@@ -11,7 +11,7 @@ interface IRoutes {
   title: string | null,
   component: React.FunctionComponent<any>,
 }
-type IHomeScreenParamList = {
+export type IHomeScreenParamList = {
   Home: undefined
   Profile: undefined
   Settings: undefined
