@@ -40,10 +40,10 @@ const Cards = observer(() => {
   }
 
   if (isLoading) return <Preloader />
-  if (!cardsData.list.length) return (
+  if (!cardsData.filteredCards.length) return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <Text style={styles.emptyListPlaceholder}>
-        Список карт пока пуст
+        Список карт пуст
       </Text>
     </View>
   )
@@ -51,7 +51,7 @@ const Cards = observer(() => {
   return (
     <SafeAreaView style={[styles.scrollContainer, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.cardsWrapper}>
-        {cardsData.list.map((card) => (
+        {cardsData.filteredCards.map((card) => (
           <TouchableOpacity
             style={{ width: '100%' }}
             activeOpacity={1}
