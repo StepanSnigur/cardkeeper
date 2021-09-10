@@ -7,6 +7,7 @@ export interface ICardData {
   frontFace: string,
   backFace: string,
   qrCodes: string[],
+  cardName: string,
 }
 
 class Cards {
@@ -17,25 +18,20 @@ class Cards {
     makeAutoObservable(this)
   }
 
-  // loadCards = async () => {
-  //   try {
-  //     const cards = await AsyncStorage.getItem('cards') || JSON.stringify([])
-  //     const parsedCards = JSON.parse(cards)
-  //     this.setCards(parsedCards)
-  //   } catch (e) {
-  //     this.error = 'Ошибка загрузки'
-  //   }
-  // }
   addCard = async (
     frontFace: string, // base64
     backFace: string, // base64
     qrCodes: string[],
+    cardName: string,
     checkLoadProgress: (e: ProgressEvent) => void
   ) => {
-    const cards = await userApi.addCard(frontFace, backFace, qrCodes, checkLoadProgress)
-    console.log(cards)
-    // const cards: ICardData[] = []
-    // await AsyncStorage.setItem('cards', JSON.stringify(cards))
+    const cards = await userApi.addCard(
+      frontFace,
+      backFace,
+      qrCodes,
+      cardName,
+      checkLoadProgress,
+    )
     this.setCards(cards)
   }
   deleteCards = async () => {

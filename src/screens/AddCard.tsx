@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { observer } from 'mobx-react-lite'
-import { StyleSheet, TouchableOpacity, View, Image } from 'react-native'
+import { StyleSheet, TouchableOpacity, View, Keyboard, Image, Dimensions } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { homeScreenType } from '../navigation/AppNavigation'
-import { useTheme, Text, IconButton } from 'react-native-paper'
+import { useTheme, Text, IconButton, TextInput } from 'react-native-paper'
 import { Camera } from 'expo-camera'
 import { BarCodeScanner } from 'expo-barcode-scanner'
 import * as ImageManipulator from 'expo-image-manipulator'
@@ -47,6 +47,14 @@ const styles = StyleSheet.create({
     width: '33.333%',
     height: '100%',
     backgroundColor: 'rgba(0, 0, 0, .8)',
+  },
+  cardName: {
+    width: '100%',
+    paddingLeft: '6%',
+    paddingRight: '6%',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    paddingTop: 7,
   },
   smallCell: {
     width: '6%',
@@ -113,6 +121,8 @@ const AddCard = observer(() => {
   const [isLoading, setIsLoading] = useState(false)
   const [progressBar, setProgressBar] = useState(0)
   const [hasPermission, setHasPermission] = useState<boolean | null>(false)
+  const [keyboardOpen, setKeyboardOpen] = useState(false)
+  const [cardName, setCardName] = useState('')
   const [camera, setCamera] = useState<Camera | null>(null)
   const [images, setImages] = useState<string[]>([])
   const [base64Images, setBase64Images] = useState<string[]>([])
@@ -127,6 +137,17 @@ const AddCard = observer(() => {
       setHasPermission(status === 'granted')
     }
     init()
+
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardOpen(true)
+    })
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardOpen(false)
+    })
+    return () => {
+      keyboardDidShowListener.remove()
+      keyboardDidHideListener.remove()
+    }
   }, [])
 
   const handleLoadImages = (e: ProgressEvent) => {
@@ -180,8 +201,13 @@ const AddCard = observer(() => {
       setIsLoading(true)
       const qrCodes = await scanQRCodes(images)
       const qrData = qrCodes.flat().map(code => code.data)
-      console.log(qrData, 'codes')
-      await cards.addCard(base64Images[0], base64Images[1], qrData, handleLoadImages)
+      await cards.addCard(
+        base64Images[0],
+        base64Images[1],
+        qrData,
+        cardName,
+        handleLoadImages,
+      )
       navigation.navigate('Home')
     } catch (e) {
       console.log(e.response.data.message)
@@ -189,11 +215,20 @@ const AddCard = observer(() => {
       setIsLoading(false)
     }
   }
+  const handleChangeCardName = (value: string) => {
+    setCardName(value)
+  }
 
   if (hasPermission === null) return <View />
   if (hasPermission === false) return <Text>Нет доступа к камере</Text>
   return (
-    <View style={[styles.wrapper, { backgroundColor: colors.background }]}>
+    <View
+      style={[styles.wrapper, {
+        backgroundColor: colors.background,
+        // prevent elements collapse when the keyboard is open
+        minHeight: Dimensions.get('window').height / 1.2,
+      }]}
+    >
       <LinePreloader progress={progressBar} />
       <Camera
         type={Camera.Constants.Type.back}
@@ -203,9 +238,14 @@ const AddCard = observer(() => {
       >
         <View style={styles.interfaceWrapper}>
           <View style={[styles.row, styles.smallRow]}>
-            <View style={styles.cell} />
-            <View style={styles.cell} />
-            <View style={styles.cell} />
+            <View style={[styles.cell, styles.cardName]}>
+              <TextInput
+                mode="outlined"
+                label="Введите имя карты *"
+                onChangeText={handleChangeCardName}
+                value={cardName}
+              />
+            </View>
           </View>
           <View style={[styles.row, styles.cardRow]}>
             <View style={[styles.cell, styles.smallCell]} />
@@ -257,16 +297,16 @@ const AddCard = observer(() => {
             <View style={styles.cell}>
               <IconButton
                 icon="camera"
-                disabled={isLoading}
+                disabled={isLoading || keyboardOpen}
                 size={40}
                 style={[styles.shotButton, { backgroundColor: colors.primary }]}
                 onPress={handleTakePicture}
               />
             </View>
             <View style={styles.cell}>
-              {images.length === 2 ?<IconButton
+              {images.length === 2 ? <IconButton
                 icon="check"
-                disabled={isLoading}
+                disabled={isLoading || !cardName}
                 size={40}
                 style={[styles.shotButton, { backgroundColor: colors.primary }]}
                 onPress={handleCreateNewCard}

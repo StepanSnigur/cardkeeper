@@ -58,7 +58,7 @@ const Cards = observer(() => {
             onPress={() => handleOpenCard(card)}
             key={card._id}
           >
-            <Card frontFaceUri={card.frontFace} />
+            <Card frontFaceUri={card.frontFace} name={card.cardName} />
           </TouchableOpacity>
         ))}
       </ScrollView>
