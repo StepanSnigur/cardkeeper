@@ -7,7 +7,7 @@ import {
   Dimensions,
   GestureResponderEvent,
 } from 'react-native'
-import { useTheme, IconButton, Text } from 'react-native-paper'
+import { useTheme, IconButton, Text, Menu, Divider } from 'react-native-paper'
 import QRCode from 'react-native-qrcode-svg'
 import Card from '../components/Card'
 import cardInfo from '../store/cardInfo'
@@ -23,8 +23,15 @@ const styles = StyleSheet.create({
   cardsWrapper: {
     zIndex: 1,
   },
-  goBackBtn: {
+  controls: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: 30,
+  },
+  cardName: {
+    fontSize: 24,
   },
   pullData: {
     position: 'absolute',
@@ -75,6 +82,7 @@ const CardInfo = observer(() => {
   const [sliderPosition, setSliderPosition] = useState(0)
   const [pullDataY, setPullDataY] = useState(0)
   const [startDragY, setStartDragY] = useState(0)
+  const [isMenuVisible, setIsMenuVisible] = useState(false)
   const slideAnimation = useRef(new Animated.Value(0)).current
   const pullDataAnimation = useRef(new Animated.Value(sliderPosition)).current
   const pullDataRef = useRef<View | null>(null)
@@ -160,6 +168,18 @@ const CardInfo = observer(() => {
       useNativeDriver: false,
     }).start()
   }
+  const openMenu = () => {
+    setIsMenuVisible(true)
+  }
+  const closeMenu = () => {
+    setIsMenuVisible(false)
+  }
+  const deleteCard = () => {
+    closeMenu()
+  }
+  const changeName = () => {
+    closeMenu()
+  }
 
   return (
     <Animated.View
@@ -173,12 +193,28 @@ const CardInfo = observer(() => {
         }]
       }]}
     >
-      <View style={styles.goBackBtn}>
+      <View style={styles.controls}>
         <IconButton
           icon="arrow-left"
           size={24}
           onPress={cardInfo.closeCard}
         />
+        {cardInfo.activeCard?.cardName
+          ? <Text style={styles.cardName}>{cardInfo.activeCard?.cardName}</Text>
+          : null}
+        <Menu
+          visible={isMenuVisible}
+          onDismiss={closeMenu}
+          anchor={<IconButton
+            icon="dots-vertical"
+            size={24}
+            onPress={openMenu}
+          />}
+        >
+          <Menu.Item onPress={changeName} title="Изменить название" icon="pencil" />
+          <Divider />
+          <Menu.Item onPress={deleteCard} title="Удалить" icon="delete" />
+        </Menu>
       </View>
       {cardInfo.activeCard ? <View style={styles.cardsWrapper}>
         <Card key={cardInfo.activeCard.frontFace} frontFaceUri={cardInfo.activeCard.frontFace} />
