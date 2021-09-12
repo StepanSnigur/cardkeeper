@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { StyleSheet, View, Image } from 'react-native'
-import { useTheme, Text } from 'react-native-paper'
+import { useTheme, Text, IconButton } from 'react-native-paper'
 import fileApi from '../api/fileApi'
 
 const styles = StyleSheet.create({
@@ -40,6 +40,12 @@ const styles = StyleSheet.create({
     height: '100%',
     zIndex: 1,
   },
+  floatElement: {
+    position: 'absolute',
+    top: 15,
+    right: 15,
+    zIndex: 2,
+  },
 })
 
 interface ICard {
@@ -49,19 +55,22 @@ interface ICard {
 
 const Card: React.FC<ICard> = ({ frontFaceUri, name }) => {
   const [image, setImage] = useState<string | null>(null)
+  const [isError, setIsError] = useState(false)
   const { colors } = useTheme()
 
   useEffect(() => {
-    const init = async () => {
-      try {
-        const base64FrontFace = await fileApi.getFile(frontFaceUri)
-        setImage(base64FrontFace)
-      } catch (e) {
-        console.log(e.message)
-      }
-    }
-    init()
+    loadImage()
   }, [])
+
+  const loadImage = async () => {
+    try {
+      setIsError(false)
+      const base64FrontFace = await fileApi.getFile(frontFaceUri)
+      setImage(base64FrontFace)
+    } catch (e) {
+      setIsError(true)
+    }
+  }
 
   return (
     <View style={[styles.cardWrapper, {
@@ -72,6 +81,12 @@ const Card: React.FC<ICard> = ({ frontFaceUri, name }) => {
         style={styles.cardFace}
       />
       {name ? <Text style={styles.cardText}>{name}</Text> : null}
+      {isError ? <IconButton
+        icon="alert-circle"
+        style={styles.floatElement}
+        size={20}
+        onPress={loadImage}
+      /> : null}
     </View>
   )
 }
