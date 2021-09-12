@@ -14,6 +14,8 @@ import {
 } from 'react-native-paper'
 import Icon from 'react-native-vector-icons/AntDesign'
 import profile from '../store/profile'
+import cardsData from '../store/cards'
+import getWordDeclension from '../utils/getWordDeclension'
 
 const styles = StyleSheet.create({
   drawerContent: {
@@ -90,8 +92,10 @@ const SideMenu: React.FC<ISideMenu> = observer((props) => {
 
             <View style={styles.row}>
               <View style={styles.section}>
-                <Paragraph style={[styles.paragraph, styles.caption]}>80</Paragraph>
-                <Caption style={styles.caption}>карт добавлено</Caption>
+                <Paragraph style={[styles.paragraph, styles.caption]}>{cardsData.list.length}</Paragraph>
+                <Caption
+                  style={styles.caption}
+                >{getWordDeclension('карта', cardsData.list.length)} добавлено</Caption>
               </View>
             </View>
           </View>
