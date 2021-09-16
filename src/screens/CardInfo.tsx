@@ -7,7 +7,15 @@ import {
   Dimensions,
   GestureResponderEvent,
 } from 'react-native'
-import { useTheme, IconButton, Text, Menu, Divider, ActivityIndicator } from 'react-native-paper'
+import {
+  useTheme,
+  IconButton,
+  Text,
+  Menu,
+  Divider,
+  ActivityIndicator,
+  TextInput,
+} from 'react-native-paper'
 import QRCode from 'react-native-qrcode-svg'
 import Card from '../components/Card'
 import cardInfo from '../store/cardInfo'
@@ -79,10 +87,15 @@ const styles = StyleSheet.create({
   loader: {
     marginRight: 16,
   },
+  changeCardNameInput: {
+    width: 210,
+  },
 })
 
 const CardInfo = observer(() => {
   const [isLoading, setIsLoading] = useState(false)
+  const [isChangingName, setIsChangingName] = useState(false)
+  const [cardName, setCardName] = useState('')
   const [sliderHeight, setSliderHeight] = useState(100)
   const [sliderPosition, setSliderPosition] = useState(0)
   const [pullDataY, setPullDataY] = useState(0)
@@ -102,6 +115,7 @@ const CardInfo = observer(() => {
   }, [pullDataRef, cardInfo.isOpen])
   useEffect(() => {
     if (cardInfo.isOpen) {
+      setCardName(cardInfo.activeCard?.cardName || '')
       openCardInfo()
     } else {
       closeCardInfo()
@@ -188,6 +202,18 @@ const CardInfo = observer(() => {
   }
   const changeName = () => {
     closeMenu()
+    setIsChangingName(true)
+  }
+  const handleChangeCardName = (value: string) => {
+    setCardName(value)
+  }
+  const changeCardName = async () => {
+    setIsChangingName(false)
+    setIsLoading(true)
+    cardInfo.activeCard
+      && await cards.changeCardName(cardInfo.activeCard._id, cardName)
+    setIsLoading(false)
+    cardInfo.closeCard()
   }
 
   return (
@@ -208,9 +234,17 @@ const CardInfo = observer(() => {
           size={24}
           onPress={cardInfo.closeCard}
         />
-        {cardInfo.activeCard?.cardName
-          ? <Text style={styles.cardName}>{cardInfo.activeCard?.cardName}</Text>
-          : null}
+        {isChangingName
+          ? <TextInput
+            mode="outlined"
+            label="Введите название карты"
+            onChangeText={handleChangeCardName}
+            value={cardName}
+            style={styles.changeCardNameInput}
+            autoFocus={true}
+            onBlur={changeCardName}
+          />
+          : <Text style={styles.cardName}>{cardInfo.activeCard?.cardName || ''}</Text>}
         {isLoading
           ? <ActivityIndicator animating={isLoading} color="#fff" style={styles.loader} />
           : <Menu
@@ -234,7 +268,7 @@ const CardInfo = observer(() => {
       {cardInfo.activeCard?.qrCodes.length ? <Animated.View
         style={[styles.pullData, {
           backgroundColor: colors.primary,
-          bottom: pullDataAnimation //-sliderHeight + 55
+          bottom: pullDataAnimation
         }]}
         ref={pullDataRef}
         onMoveShouldSetResponder={() => true}
