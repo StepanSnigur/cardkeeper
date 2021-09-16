@@ -1,6 +1,7 @@
 import { makeAutoObservable } from 'mobx'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import userApi from '../api/userApi'
+import alert from './alert'
 
 export interface ICardData {
   _id: string,
@@ -43,6 +44,15 @@ class Cards {
       this.error = 'Ошибка удаления'
     }
   }
+  deleteCard = async (id: string) => {
+    try {
+      await userApi.deleteCard(id)
+      this.removeCard(id)
+    } catch (e) {
+      console.log(e.message)
+      alert.showAlertMessage('error', 'Ошибка удаления карты')
+    }
+  }
 
   get filteredCards() {
     return this.list.filter(card => card
@@ -53,6 +63,9 @@ class Cards {
 
   setCards = (cards: ICardData[]) => {
     this.list = cards
+  }
+  removeCard = (id: string) => {
+    this.list = this.list.filter(card => card._id !== id)
   }
   setSearchTerm = (searchTerm: string) => {
     this.searchTerm = searchTerm

@@ -7,10 +7,11 @@ import {
   Dimensions,
   GestureResponderEvent,
 } from 'react-native'
-import { useTheme, IconButton, Text, Menu, Divider } from 'react-native-paper'
+import { useTheme, IconButton, Text, Menu, Divider, ActivityIndicator } from 'react-native-paper'
 import QRCode from 'react-native-qrcode-svg'
 import Card from '../components/Card'
 import cardInfo from '../store/cardInfo'
+import cards from '../store/cards'
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -75,9 +76,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
   },
+  loader: {
+    marginRight: 16,
+  },
 })
 
 const CardInfo = observer(() => {
+  const [isLoading, setIsLoading] = useState(false)
   const [sliderHeight, setSliderHeight] = useState(100)
   const [sliderPosition, setSliderPosition] = useState(0)
   const [pullDataY, setPullDataY] = useState(0)
@@ -174,8 +179,12 @@ const CardInfo = observer(() => {
   const closeMenu = () => {
     setIsMenuVisible(false)
   }
-  const deleteCard = () => {
+  const deleteCard = async () => {
     closeMenu()
+    setIsLoading(true)
+    cardInfo.activeCard && await cards.deleteCard(cardInfo.activeCard._id)
+    setIsLoading(false)
+    cardInfo.closeCard()
   }
   const changeName = () => {
     closeMenu()
@@ -202,19 +211,21 @@ const CardInfo = observer(() => {
         {cardInfo.activeCard?.cardName
           ? <Text style={styles.cardName}>{cardInfo.activeCard?.cardName}</Text>
           : null}
-        <Menu
-          visible={isMenuVisible}
-          onDismiss={closeMenu}
-          anchor={<IconButton
-            icon="dots-vertical"
-            size={24}
-            onPress={openMenu}
-          />}
-        >
-          <Menu.Item onPress={changeName} title="Изменить название" icon="pencil" />
-          <Divider />
-          <Menu.Item onPress={deleteCard} title="Удалить" icon="delete" />
-        </Menu>
+        {isLoading
+          ? <ActivityIndicator animating={isLoading} color="#fff" style={styles.loader} />
+          : <Menu
+            visible={isMenuVisible}
+            onDismiss={closeMenu}
+            anchor={<IconButton
+              icon="dots-vertical"
+              size={24}
+              onPress={openMenu}
+            />}
+          >
+            <Menu.Item onPress={changeName} title="Изменить название" icon="pencil" />
+            <Divider />
+            <Menu.Item onPress={deleteCard} title="Удалить" icon="delete" />
+          </Menu>}
       </View>
       {cardInfo.activeCard ? <View style={styles.cardsWrapper}>
         <Card key={cardInfo.activeCard.frontFace} frontFaceUri={cardInfo.activeCard.frontFace} />
