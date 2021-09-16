@@ -48,6 +48,11 @@ class UserApi extends ApiConfig {
 
     return res
   }
+  deleteCard = async (id: string) => {
+    return await this.makeRequest('user/deleteCard', {
+      cardId: id,
+    }, 'DELETE')
+  }
 }
 
 export default new UserApi()
