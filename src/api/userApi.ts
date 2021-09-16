@@ -48,6 +48,12 @@ class UserApi extends ApiConfig {
 
     return res
   }
+  changeCardName = async (id: string, newCardName: string) => {
+    return await this.makeRequest('user/changeCard', {
+      cardId: id,
+      newCardName,
+    }, 'POST')
+  }
   deleteCard = async (id: string) => {
     return await this.makeRequest('user/deleteCard', {
       cardId: id,

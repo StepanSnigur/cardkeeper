@@ -44,12 +44,19 @@ class Cards {
       this.error = 'Ошибка удаления'
     }
   }
+  changeCardName = async (id: string, newCardName: string) => {
+    try {
+      const newCards = await userApi.changeCardName(id, newCardName)
+      this.setCards(newCards)
+    } catch (e) {
+      alert.showAlertMessage('error', 'Ошибка при изменении карты')
+    }
+  }
   deleteCard = async (id: string) => {
     try {
       await userApi.deleteCard(id)
       this.removeCard(id)
     } catch (e) {
-      console.log(e.message)
       alert.showAlertMessage('error', 'Ошибка удаления карты')
     }
   }
