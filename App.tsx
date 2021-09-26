@@ -13,6 +13,12 @@ import MenuNavigation from './src/navigation/MenuNavigation'
 import Alert from './src/components/Alert'
 import CardInfo from './src/screens/CardInfo'
 
+// Fix for the react-native-draggable-flatlist library
+import { LogBox } from 'react-native'
+LogBox.ignoreLogs([
+  'ReactNativeFiberHostComponent: Calling getNode() on the ref of an Animated component is no longer necessary. You can now directly use the ref instead. This method will be removed in a future release.',
+])
+
 const darkTheme = {
   ...DarkTheme,
   dark: true,
