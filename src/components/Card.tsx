@@ -51,9 +51,10 @@ const styles = StyleSheet.create({
 interface ICard {
   frontFaceUri: string
   name?: string
+  isDragging: boolean
 }
 
-const Card: React.FC<ICard> = ({ frontFaceUri, name }) => {
+const Card: React.FC<ICard> = ({ frontFaceUri, name, isDragging }) => {
   const [image, setImage] = useState<string | null>(null)
   const [isError, setIsError] = useState(false)
   const { colors } = useTheme()
@@ -74,12 +75,12 @@ const Card: React.FC<ICard> = ({ frontFaceUri, name }) => {
 
   return (
     <View style={[styles.cardWrapper, {
-      backgroundColor: colors.primary,
+      backgroundColor: colors.surface
     }]}>
-      <Image
+      {isDragging ? null : <Image
         source={{ uri: `data:image/png;base64,${image}` }}
         style={styles.cardFace}
-      />
+      />}
       {name ? <Text style={styles.cardText}>{name}</Text> : null}
       {isError ? <IconButton
         icon="alert-circle"

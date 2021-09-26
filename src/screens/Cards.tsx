@@ -1,27 +1,24 @@
-import React, { useState } from 'react'
+import React, { useCallback } from 'react'
 import { observer } from 'mobx-react-lite'
 import {
   StyleSheet,
   View,
-  SafeAreaView,
-  ScrollView,
   TouchableOpacity,
 } from 'react-native'
 import { useTheme, Text } from 'react-native-paper'
+import DraggableFlatList, {
+  RenderItemParams,
+  DragEndParams,
+} from 'react-native-draggable-flatlist'
 import cardsData, { ICardData } from '../store/cards'
 import cardInfo from '../store/cardInfo'
 
 import Card from '../components/Card'
-import Preloader from '../components/Preloader'
 
 const styles = StyleSheet.create({
   scrollContainer: {
     flex: 1,
-  },
-  cardsWrapper: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    paddingTop: 20,
+    paddingTop: 30,
   },
   emptyListPlaceholder: {
     textAlign: 'center',
@@ -32,14 +29,36 @@ const styles = StyleSheet.create({
 })
 
 const Cards = observer(() => {
-  const [isLoading, setIsLoading] = useState(false)
   const { colors } = useTheme()
 
   const handleOpenCard = (cardData: ICardData) => {
     cardInfo.openCard(cardData)
   }
 
-  if (isLoading) return <Preloader />
+  const renderCards = useCallback(
+    ({ item, drag, isActive }: RenderItemParams<ICardData>) => {
+      return (
+        <TouchableOpacity
+          style={{ width: '100%' }}
+          activeOpacity={1}
+          onPress={() => handleOpenCard(item)}
+          onLongPress={drag}
+        >
+          <Card
+            frontFaceUri={item.frontFace}
+            name={item.cardName}
+            isDragging={isActive}
+          />
+        </TouchableOpacity>
+      )
+    },
+    []
+  )
+  const getCardsKeys = (card: ICardData) => `draggable-item-${card._id}`
+  const handleDragEnd = ({ data }: DragEndParams<ICardData>) => {
+    cardsData.setCards(data)
+  }
+
   if (!cardsData.filteredCards.length) return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <Text style={styles.emptyListPlaceholder}>
@@ -49,20 +68,14 @@ const Cards = observer(() => {
   )
 
   return (
-    <SafeAreaView style={[styles.scrollContainer, { backgroundColor: colors.background }]}>
-      <ScrollView contentContainerStyle={styles.cardsWrapper}>
-        {cardsData.filteredCards.map((card) => (
-          <TouchableOpacity
-            style={{ width: '100%' }}
-            activeOpacity={1}
-            onPress={() => handleOpenCard(card)}
-            key={card._id}
-          >
-            <Card frontFaceUri={card.frontFace} name={card.cardName} />
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-    </SafeAreaView>
+    <View style={[styles.scrollContainer, { backgroundColor: colors.background }]}>
+      <DraggableFlatList
+        data={cardsData.filteredCards}
+        renderItem={renderCards}
+        keyExtractor={getCardsKeys}
+        onDragEnd={handleDragEnd}
+      />
+    </View>
   )
 })
 
