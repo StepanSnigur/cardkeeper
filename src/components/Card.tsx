@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
 interface ICard {
   frontFaceUri: string
   name?: string
-  isDragging: boolean
+  isDragging?: boolean
 }
 
 const Card: React.FC<ICard> = ({ frontFaceUri, name, isDragging }) => {

@@ -208,12 +208,21 @@ const CardInfo = observer(() => {
     setCardName(value)
   }
   const changeCardName = async () => {
+    if (cardInfo.activeCard && cardInfo.activeCard.cardName === cardName) {
+      setIsChangingName(false)
+      return false
+    }
+
     setIsChangingName(false)
     setIsLoading(true)
     cardInfo.activeCard
       && await cards.changeCardName(cardInfo.activeCard._id, cardName)
     setIsLoading(false)
     cardInfo.closeCard()
+  }
+  const undoNameChange = () => {
+    setCardName(cardInfo.activeCard?.cardName || '')
+    setIsChangingName(false)
   }
 
   return (
@@ -243,6 +252,11 @@ const CardInfo = observer(() => {
             style={styles.changeCardNameInput}
             autoFocus={true}
             onBlur={changeCardName}
+            right={<TextInput.Icon
+              name="close-circle"
+              size={20}
+              onPress={undoNameChange}
+            />}
           />
           : <Text style={styles.cardName}>{cardInfo.activeCard?.cardName || ''}</Text>}
         {isLoading
