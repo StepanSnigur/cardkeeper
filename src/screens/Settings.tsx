@@ -1,8 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { View, StyleSheet } from 'react-native'
 import { observer } from 'mobx-react-lite'
 import { Text, useTheme, Switch } from 'react-native-paper'
-import settings, { titles, settingsKeys } from '../store/settings'
+import settings, { enterTypes } from '../store/settings'
+import profile from '../store/profile'
+import DropDown from 'react-native-paper-dropdown'
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -26,30 +28,45 @@ const styles = StyleSheet.create({
 })
 
 const Settings = observer(() => {
+  const [enterTypeDropDownVisible, setEnterTypeDropDownVisible] = useState(false)
   const { colors } = useTheme()
-
-  const handleChangeSettings = (settingName: settingsKeys) => {
-    settings.switchSetting(settingName)
-  }
 
   return (
     <View style={[styles.wrapper, { backgroundColor: colors.background }]}>
-      {Object.keys(settings).map((key, i, settingsKeys) => {
-        const typedKey = key as settingsKeys
-        const switchValue = settings[typedKey]
-        return (
-          <View
-            style={[styles.settingContainer, {
-              borderBottomColor: colors.text,
-              borderBottomWidth: i === settingsKeys.length - 1 ? 0 : 1
-            }]}
-            key={key}
-          >
-            <Text style={styles.settingTitle}>{titles[typedKey]}</Text>
-            <Switch value={switchValue} onValueChange={() => handleChangeSettings(typedKey)} />
-          </View>
-        )
-      })}
+      <View
+        style={[styles.settingContainer, {
+          borderBottomColor: colors.text,
+          borderBottomWidth: 1
+        }]}
+      >
+        <Text style={styles.settingTitle}>Темная тема</Text>
+        <Switch value={settings.darkTheme} onValueChange={settings.changeDarkTheme} />
+      </View>
+      <View
+        style={[styles.settingContainer, {
+          borderBottomColor: colors.text,
+          borderBottomWidth: 0
+        }]}
+      >
+        <Text style={styles.settingTitle}>Тип входа</Text>
+        <DropDown
+          visible={enterTypeDropDownVisible}
+          mode="outlined"
+          inputProps={{
+            style: {
+              maxWidth: 175
+            }
+          }}
+          onDismiss={() => setEnterTypeDropDownVisible(false)}
+          showDropDown={() => setEnterTypeDropDownVisible(true)}
+          value={settings.enterType}
+          setValue={val => {
+            settings.changeEnterType(val)
+            profile.saveUserLoginData()
+          }}
+          list={enterTypes}
+        />
+      </View>
     </View>
   )
 })

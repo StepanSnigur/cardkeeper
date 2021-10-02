@@ -8,10 +8,14 @@ import {
 } from '@react-navigation/native'
 import settings from './src/store/settings'
 import * as SplashScreen from 'expo-splash-screen'
+import * as LocalAuthentication from 'expo-local-authentication'
 
 import MenuNavigation from './src/navigation/MenuNavigation'
 import Alert from './src/components/Alert'
 import CardInfo from './src/screens/CardInfo'
+
+import alert from './src/store/alert'
+import profile from './src/store/profile'
 
 // Fix for the react-native-draggable-flatlist library
 import { LogBox } from 'react-native'
@@ -46,15 +50,29 @@ const lightTheme = {
 const App = observer(() => {
   useEffect(() => {
     const init = async () => {
+      await SplashScreen.preventAutoHideAsync()
+      await settings.getDefaultSettings()
       DefaultNavigationTheme.colors.background = settings.darkTheme
         ? darkTheme.colors.background
         : lightTheme.colors.background
-      await SplashScreen.preventAutoHideAsync()
-      await settings.getDefaultSettings()
     }
 
     init().finally(async () => {
-      await SplashScreen.hideAsync()
+      try {
+        await SplashScreen.hideAsync()
+
+        if (settings.enterType === 'fingerprint' && !profile.userId) {
+          const savedBiometrics = await LocalAuthentication.isEnrolledAsync()
+          if (!savedBiometrics) alert.showAlertMessage('error', 'У вас не установлен отпечаток пальца')
+
+          const { success } = await LocalAuthentication.authenticateAsync()
+          if (success) {
+            profile.checkAutoLogin()
+          }
+        }
+      } catch (e) {
+        alert.showAlertMessage('error', e.message)
+      }
     })
   }, [])
 
