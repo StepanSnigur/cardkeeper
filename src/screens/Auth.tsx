@@ -5,6 +5,7 @@ import { MenuNavigationParams } from '../navigation/MenuNavigation'
 import { View, StyleSheet } from 'react-native'
 import { Text, TextInput, Button, useTheme, Checkbox } from 'react-native-paper'
 import profile from '../store/profile'
+import settings from '../store/settings'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import {
   useFonts,
@@ -83,11 +84,11 @@ const Auth: React.FC<AuthPage> = observer(({ navigation }) => {
   useLayoutEffect(() => {
     const init = async () => {
       setIsLoading(true)
-      await profile.checkAutoLogin()
+      settings.enterType === 'auto' && profile.checkAutoLogin()
       setIsLoading(false)
     }
     init()
-  }, [])
+  }, [settings.enterType])
 
   const handleEmailChange = (value: string) => {
     setEmail(value)

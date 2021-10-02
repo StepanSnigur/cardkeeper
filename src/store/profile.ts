@@ -1,7 +1,7 @@
 import { makeAutoObservable } from 'mobx'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import userApi from '../api/userApi'
-import settings, { ISettings } from './settings'
+import settings from './settings'
 import cards, { ICardData } from './cards'
 import alert from './alert'
 
@@ -10,40 +10,51 @@ class Profile {
   avatar: string | null = null
   userId: string | null = null
   accessToken: string | null = null
+  refreshToken: string | null = null
   isActivated: boolean = false
 
   constructor() {
     makeAutoObservable(this)
   }
 
+  saveUserLoginData = async () => {
+    try {
+      return await AsyncStorage.setItem('refreshData', JSON.stringify({
+        id: this.userId,
+        refreshToken: this.refreshToken,
+      }))
+    } catch (e) {
+      alert.showAlertMessage('error', 'Непредвиденная ошибка')
+    }
+  }
   checkAutoLogin = async () => {
     try {
       const refreshData = await AsyncStorage.getItem('refreshData')
-      if (!refreshData) return false
+      if (!refreshData) throw new Error()
       const { id, refreshToken } = JSON.parse(refreshData)
-      if (!id || !refreshToken) return false
+      if (!id || !refreshToken) throw new Error()
 
       const data = await userApi.autoLogin(id, refreshToken)
-      const { email, isActivated, avatar, settings, cards } = data.user
+      const { email, isActivated, avatar, cards } = data.user
       this.setAccessToken(data.accessToken)
-      this.setUser(id, email, isActivated, avatar, settings, cards)
+      this.setRefreshToken(data.refreshToken)
+      this.setUser(id, email, isActivated, avatar, cards)
     } catch (e) {
-      alert.showAlertMessage('error', 'Автоматический вход в приложение не удался')
+      alert.showAlertMessage('error', 'Вход в приложение не удался')
     }
   }
   logUserIn = async (email: string, password: string, rememberMe: boolean) => {
     try {
       const data = await userApi.login(email, password)
-      const { id, avatar, isActivated, settings, cards } = data.user
+      const { id, avatar, isActivated, cards } = data.user
       this.setAccessToken(data.accessToken)
+      this.setRefreshToken(data.refreshToken)
       userApi.addToken(data.accessToken)
-      this.setUser(id, email, isActivated, avatar, settings, cards)
+      this.setUser(id, email, isActivated, avatar, cards)
 
       if (rememberMe) {
-        await AsyncStorage.setItem('refreshData', JSON.stringify({
-          refreshToken: data.refreshToken,
-          id
-        }))
+        await this.saveUserLoginData()
+        settings.changeEnterType('auto')
       } else {
         await AsyncStorage.removeItem('refreshData')
       }
@@ -60,7 +71,6 @@ class Profile {
       this.setIsActivated(isActivated)
       this.setAvatar(avatar)
 
-      settings.setSettings(data.user.settings)
       cards.setCards(data.user.cards)
     } catch (e) {
       alert.showAlertMessage('error', e.response.data.message)
@@ -70,15 +80,16 @@ class Profile {
     try {
       await userApi.logout()
       await AsyncStorage.removeItem('refreshData')
+      await settings.clearSettings()
       this.setUser(
         null,
         null,
         false,
         null,
-        undefined,
         []
       )
       this.setAccessToken(null)
+      this.setRefreshToken(null)
       goToLoginScreen()
     } catch (e) {
       alert.showAlertMessage('error', e.response.data.message)
@@ -90,7 +101,6 @@ class Profile {
     email: string | null,
     isActivated: boolean,
     avatar: string | null,
-    settingsData: ISettings | undefined,
     cardsData: ICardData[]
   ) {
     this.setUserId(id)
@@ -98,7 +108,6 @@ class Profile {
     this.setIsActivated(isActivated)
     this.setAvatar(avatar)
 
-    settings.setSettings(settingsData)
     cards.setCards(cardsData)
   }
   setUserId(id: string | null) {
@@ -106,6 +115,9 @@ class Profile {
   }
   setAccessToken(token: string | null) {
     this.accessToken = token
+  }
+  setRefreshToken(token: string | null) {
+    this.refreshToken = token
   }
   setUserEmail(email: string | null) {
     this.email = email

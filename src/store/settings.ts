@@ -1,17 +1,23 @@
-import { makeAutoObservable } from 'mobx'
+import { makeAutoObservable, runInAction } from 'mobx'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
+export type enterTypeValue = 'default' | 'fingerprint' | 'auto'
+type IEnterTypes = { label: string, value: enterTypeValue }
+export const enterTypes: IEnterTypes[] = [
+  { label: 'по умолчанию', value: 'default' },
+  { label: 'по отпечатку', value: 'fingerprint' },
+  { label: 'автоматически', value: 'auto' },
+]
 export interface ISettings {
   darkTheme: boolean,
-  fingerprint: boolean
+  enterType: string,
 }
 export type settingsKeys = keyof ISettings
-type ISettingsTitles = {
-  [key in settingsKeys]: string
-}
+
 class Settings implements ISettings {
+  // default settings
   darkTheme = true
-  fingerprint = false
+  enterType = enterTypes[0].value
 
   constructor() {
     makeAutoObservable(this)
@@ -27,26 +33,31 @@ class Settings implements ISettings {
       throw new Error('Ошибка получения настроек пользователя')
     }
   }
-  async switchSetting(name: keyof ISettings) {
-    try {
-      this[name] = !this[name]
-      await AsyncStorage.setItem('defaultSettings', JSON.stringify(this))
-    } catch (e) {
-      throw new Error('Ошибка сохранения настроек пользователя')
-    }
-  }
   setSettings(settings?: ISettings) {
     if (settings) {
       Object.keys(settings).forEach(key => {
         const settingKey = key as settingsKeys
+        // @ts-ignore
         this[settingKey] = settings[settingKey]
       })
     }
   }
-}
-export const titles: ISettingsTitles = {
-  darkTheme: 'Темная тема',
-  fingerprint: 'Вход по отпечатку'
+  clearSettings = async () => {
+    await AsyncStorage.removeItem('defaultSettings')
+    runInAction(() => {
+      this.darkTheme = true
+      this.enterType = enterTypes[0].value
+    })
+  }
+
+  changeDarkTheme = async () => {
+    this.darkTheme = !this.darkTheme
+    await AsyncStorage.setItem('defaultSettings', JSON.stringify(this))
+  }
+  changeEnterType = async (enterType: enterTypeValue) => {
+    this.enterType = enterType
+    await AsyncStorage.setItem('defaultSettings', JSON.stringify(this))
+  }
 }
 
 export default new Settings()
