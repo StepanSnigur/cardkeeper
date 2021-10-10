@@ -9,6 +9,7 @@ export const ALERT_COLORS = {
 class AlertStore {
   alertType: 'info' | 'error' | 'log' = 'error'
   alertMessage: string = ''
+  timerId: ReturnType<typeof setTimeout> | null = null
 
   constructor() {
     makeAutoObservable(this)
@@ -16,11 +17,17 @@ class AlertStore {
 
   showAlertMessage = (type: keyof typeof ALERT_COLORS, message: string) => {
     this.setAlertData(type, message)
-    setTimeout(() => this.setAlertData(type, ''), 3000)
+    this.timerId = setTimeout(() => this.setAlertData(type, ''), 3000)
   }
   setAlertData = (type: keyof typeof ALERT_COLORS, message: string) => {
     this.alertType = type
     this.alertMessage = message
+  }
+  closeAlertMessage = (type: keyof typeof ALERT_COLORS = 'error') => {
+    if (this.timerId) {
+      this.setAlertData(type, '')
+      clearTimeout(this.timerId)
+    }
   }
 }
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { observer } from 'mobx-react-lite'
-import { StyleSheet, Animated } from 'react-native'
+import { StyleSheet, Animated, GestureResponderEvent } from 'react-native'
 import { Text } from 'react-native-paper'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import alert, { ALERT_COLORS } from '../store/alert'
@@ -23,14 +23,18 @@ const styles = StyleSheet.create({
   },
 })
 
+const CLOSED_POSITION = -1000
+const OPENED_POSITION = 20
 const Alert = observer(() => {
   const [isVisible, setIsVisible] = useState(false)
+  const [initialCoords, setInitialCoords] = useState<null | number>(null)
+  const [scrolled, setScrolled] = useState(0)
   const slideUpAnimation = useRef(new Animated.Value(0)).current
 
   useEffect(() => {
     setIsVisible(true)
     Animated.timing(slideUpAnimation, {
-      toValue: alert.alertMessage.length ? 1 : 0,
+      toValue: alert.alertMessage.length ? OPENED_POSITION : CLOSED_POSITION,
       duration: 500,
       useNativeDriver: false,
     }).start(handleAnimationEnd)
@@ -38,6 +42,35 @@ const Alert = observer(() => {
 
   const handleAnimationEnd = () => {
     !alert.alertMessage.length && setIsVisible(false)
+  }
+
+  const animateAlertMoving = (toValue: number) => {
+    Animated.spring(slideUpAnimation, {
+      toValue,
+      tension: 20,
+      useNativeDriver: false,
+    }).start()
+  }
+  const handleTouchStart = (e: GestureResponderEvent) => {
+    setInitialCoords(e.nativeEvent.pageY)
+  }
+  const handleTouchEnd = () => {
+    if (Math.abs(scrolled) >= OPENED_POSITION) { // close alert message
+      alert.closeAlertMessage()
+    } else { // return to default position
+      animateAlertMoving(OPENED_POSITION)
+    }
+    setInitialCoords(null)
+    setScrolled(0)
+  }
+  const handleCloseAlert = (e: GestureResponderEvent) => {
+    if (!initialCoords) throw new Error('Initial coords is missing')
+
+    const delta = initialCoords - e.nativeEvent.pageY
+    if (delta > OPENED_POSITION) return false
+
+    setScrolled(delta)
+    animateAlertMoving(delta)
   }
 
   const truncatedMessage = alert.alertMessage.length > 30
@@ -49,11 +82,12 @@ const Alert = observer(() => {
     <Animated.View
       style={[styles.wrapper, {
         backgroundColor: ALERT_COLORS[alert.alertType].color,
-        bottom: slideUpAnimation.interpolate({
-          inputRange: [0, 1],
-          outputRange: [-1000, 20],
-        })
+        bottom: slideUpAnimation
       }]}
+      onMoveShouldSetResponder={() => true}
+      onResponderMove={handleCloseAlert}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
       <Icon name={ALERT_COLORS[alert.alertType].icon} size={20} />
       <Text style={styles.alertText}>{truncatedMessage}</Text>
