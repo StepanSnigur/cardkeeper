@@ -84,7 +84,7 @@ const Auth: React.FC<AuthPage> = observer(({ navigation }) => {
   useLayoutEffect(() => {
     const init = async () => {
       setIsLoading(true)
-      settings.enterType === 'auto' && profile.checkAutoLogin()
+      settings.enterType === 'auto' && await profile.checkAutoLogin()
       setIsLoading(false)
     }
     init()
