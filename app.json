@@ -23,7 +23,7 @@
       "package": "com.cardkeeper.stepan",
       "versionCode": 1,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icon.png",
+        "foregroundImage": "./assets/app-icon.png",
         "backgroundColor": "#FFFFFF"
       }
     },
