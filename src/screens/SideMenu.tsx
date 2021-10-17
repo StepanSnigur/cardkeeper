@@ -16,6 +16,7 @@ import Icon from 'react-native-vector-icons/AntDesign'
 import profile from '../store/profile'
 import cardsData from '../store/cards'
 import getWordDeclension from '../utils/getWordDeclension'
+import { cutWord } from '../utils/сutWord'
 
 const styles = StyleSheet.create({
   drawerContent: {
@@ -86,7 +87,7 @@ const SideMenu: React.FC<ISideMenu> = observer((props) => {
                 size={50}
               />
               <View style={{ marginLeft:15, flexDirection:'column' }}>
-                <Title style={styles.title}>{profile.email}</Title>
+                <Title style={styles.title}>{cutWord(profile.email || '', 18)}</Title>
               </View>
             </View>
 

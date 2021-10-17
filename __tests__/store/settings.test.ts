@@ -24,16 +24,11 @@ describe('Settings store', () => {
 
   it('Set correct settings by default', async () => {
     await settings.getDefaultSettings()
-    expect(settings).toEqual(defaultSettings)
+    expect(settings).toEqual({ ...settings, ...defaultSettings })
   })
   it('Correct set user settings', async () => {
     getItem.mockImplementation(() => Promise.resolve(JSON.stringify(mockUserSettings)))
     await settings.getDefaultSettings()
-    expect(settings).toEqual(mockUserSettings)
-  })
-  it('Correct change settings', async () => {
-    await settings.switchSetting('fingerprint')
-    expect(settings.fingerprint).toBe(true)
-    expect(setItem).toBeCalledTimes(1)
+    expect(settings).toEqual({ ...settings, ...mockUserSettings })
   })
 })
